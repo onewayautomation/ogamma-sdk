@@ -1,0 +1,294 @@
+#pragma once
+#include <stdint.h>
+#include <assert.h>
+#include <string>
+
+namespace OWA {
+  namespace OpcUa {
+    enum class SecurityTokenRequestType : uint32_t
+    {
+      Issue = 0,
+      Renew = 1
+    };
+
+    enum class MessageSecurityMode : uint32_t
+    {
+      Invalid = 0,
+      None = 1,
+      Sign = 2,
+      SignAndEncrypt = 3
+    };
+
+    // Type of the identifier in the NodeId:
+    enum class IdentifierType:uint8_t {
+      Numeric = 0,
+      String = 1,
+      Guid = 2,
+      Opaque = 3
+    };
+
+    // TODO for now ids are defined for binary encoding.
+    // Consider having Ids for general type, and then converting them at encoding/decoding to that type to/from encoding specific values
+    enum struct RequestResponseTypeId :uint16_t {
+      Connect = 0,
+      Disconnect = 1,
+      ServiceFaultRequest = 2, //TODO
+
+      ServiceFault = 397, //This is response
+
+      FindServersRequest = 422,
+      FindServersResponse = 425,
+      GetEndpointsRequest = 428,
+      GetEndpointsResponse = 431, 
+
+      OpenSecureChannelRequest = 446, 
+      OpenSecureChannelResponse = 449,
+      CloseSecureChannelRequest = 452,
+      CloseSecureChannelResponse = 455,
+
+      CreateSessionRequest = 461,
+      CreateSessionResponse = 464,
+      ActivateSessionRequest = 467,
+      ActivateSessionResponse = 470,
+      CloseSessionRequest = 473,
+      CloseSessionResponse = 476,
+      CancelRequest = 478,
+      CancelResponse = 482,
+
+      AddNodesRequest = 488,
+      AddNodesResponse = 491,
+      AddReferencesRequest = 494,
+      AddReferencesResponse = 497,
+      DeleteNodesRequest = 500,
+      DeleteNodesResponse = 503,
+      DeleteReferencesRequest = 506,
+      DeleteReferencesResponse = 509,
+      BrowseRequest = 527,
+      BrowseResponse = 530,
+      BrowseNextRequest = 533,
+      BrowseNextResponse = 536,
+      TranslateNodeIdsRequest = 554,
+      TranslateNodeIdsResponse = 557,
+
+      RegisterNodesRequest = 560,
+      RegisterNodesResponse = 563,
+      UnregisterNodesRequest = 566,
+      UnregisterNodesResponse = 569,
+
+      QueryFirstRequest = 615,
+      QueryFirstResponse = 618,
+      QueryNextRequest = 621,
+      QueryNextResponse = 624,
+
+      ReadRequest = 631,
+      ReadResponse = 634,
+      HistoryReadRequest = 664,
+      HistoryReadResponse = 667,
+      WriteRequest = 673,
+      WriteResponse = 676,
+      HistoryUpdateRequest = 700,
+      HistoryUpdateResponse = 703,
+
+      CallRequest = 712,
+      CallRepsonse = 715, 
+
+      CreateMonitoredItemsRequest = 751,
+      CreateMonitoredItemsResponse = 754,
+      ModifyMonitoredItemsRequest = 763,
+      ModifyMonitoredItemsResponse = 766,
+      SetMonitoringModeRequest = 769,
+      SetMonitoringModeResponse = 772,
+      SetTriggeringRequest = 775,
+      SetTriggeringResponse = 778,
+      DeleteMonitoredItemsRequest = 781,
+      DeleteMonitoredItemsResponse = 784,
+
+      CreateSubscriptionRequest = 787,
+      CreateSubscriptionResponse = 790,
+      ModifySubscriptionRequest = 793,
+      ModifySubscriptionResponse = 796,
+      SetPublishingModeRequest = 799,
+      SetPublishingModeResponse = 802,
+      PublishRequest = 826,
+      PublishResponse = 829,
+      RepublishRequest = 832,
+      RepublishResponse = 835,
+      TransferSubscriptionsRequest = 841,
+      TransferSubscriptionsResponse = 844,
+      DeleteSubscriptionsRequest = 847,
+      DeleteSubscriptionsResponse = 850
+    };
+
+    enum struct NodeIdDataEncoding:uint8_t {
+      TwoByte = 0x00, // A numeric value that fits into the two byte representation.
+      FourByte = 0x01, // A numeric value that fits into the four byte representation.
+      Numeric = 0x02, // A numeric value that does not fit into the two or four byte representations.
+      String = 0x03, // A String value.
+      Guid = 0x04, // A  Guid value.
+      ByteString = 0x05,  // An opaque(ByteString) value.
+
+      NamespaceUriFlag = 0x80,
+      ServerIndexFlag = 0x40
+    };
+    // Used to compose encoding byte as combination of type of node id and flags.
+    inline uint8_t operator| (NodeIdDataEncoding value1, NodeIdDataEncoding value2) { return static_cast<uint8_t>(value1) | static_cast<uint8_t>(value2); };
+    inline uint8_t operator| (uint8_t value1, NodeIdDataEncoding value2) { return value1 | static_cast<uint8_t>(value2); };
+    
+    // Used to detect if a flag is set:
+    inline uint8_t operator& (uint8_t value1, NodeIdDataEncoding value2) { return value1 & static_cast<uint8_t>(value2); };
+
+    enum struct ExtensibleParameterBodyType:uint8_t {
+      None = 0,
+      ByteString = 1,
+      Xml = 2
+    };
+
+    union DiagnosticInfoEncodingMask {
+      typedef uint8_t integerValueType;
+      integerValueType whole;
+
+      // Could use std::bitset, but old fashion way seems simpler, better to understand
+      struct bitMask
+      {
+        integerValueType
+          SymbolicId : 1,   // 0x01	Symbolic Id
+          Namespace : 1,    // 0x02	Namespace
+          LocalizedText:1,  // 0x04	LocalizedText
+          Locale : 1,       // 0x08	Locale
+          AdditionalInfo : 1,  // 0x10	Additional Info
+          InnerStatusCode : 1, //  0x20	InnerStatusCode
+          InnerDiagnosticInfo : 1 //  0x40	InnerDiagnosticInfo
+          ;
+      } bits;
+      DiagnosticInfoEncodingMask(integerValueType value = 0) : whole(value) {
+        assert(sizeof(integerValueType) >= sizeof(bitMask));
+      }
+    };
+
+    enum struct ApplicationType: uint32_t {
+      SERVER_0 = 0, // The application is a Server.
+      CLIENT_1 = 1, // The application is a Client.
+      CLIENTANDSERVER_2 = 2, // The application is a Client and a Server.
+      DISCOVERYSERVER_3 = 3  // The application is a DiscoveryServer.
+    };
+
+    enum struct UserIdentityTokenType :uint32_t {
+      ANONYMOUS_0 = 0,  //No token is required.
+      USERNAME_1 = 1,   // A username / password token.
+      CERTIFICATE_2 = 2,// An X509v3 certificate token.
+      ISSUEDTOKEN_3 = 3 // Any WS - Security defined token.
+    };
+
+    enum ConnectionState : uint8_t {
+      Initialized = 0, 
+      Connecting,
+      // Connection is established:
+      Connected,
+      // Attempt to connect/reconnect failed:
+      CouldNotConnect,
+      Disconnecting,
+      // Disconnected (as result of normal disconnect call)
+      Disconnected,
+      // Disconnected as result of communication error:
+      CommunicationError,
+      Reconnecting
+    };
+    enum struct SecurityPolicyId : uint8_t {
+      Invalid = 0,
+      None = 1,
+      Basic128Rsa15 = 2,
+      Basic256 = 3,
+      Basic256Sha256 = 4
+    };
+
+    struct SecurityMode {
+      SecurityMode() {
+        policyId = SecurityPolicyId::Basic256Sha256;
+        messageSecurityMode = MessageSecurityMode::SignAndEncrypt;
+      }
+      SecurityMode(SecurityPolicyId id, MessageSecurityMode mode) {
+        policyId = id;
+        messageSecurityMode = mode;
+      }
+      static SecurityMode noneSecureMode() {
+        return SecurityMode(SecurityPolicyId::None, MessageSecurityMode::None);
+      }
+      bool operator!=(const SecurityMode& other) {
+        return (policyId != other.policyId || messageSecurityMode != other.messageSecurityMode);
+      }
+
+      SecurityPolicyId policyId;
+      MessageSecurityMode messageSecurityMode;
+    };
+
+    namespace Protocol {
+      const std::string tcp = "opc.tcp";
+      const std::string https = "opc.https";
+      const std::string amqp = "opc.amqp";
+    };
+
+    typedef double Duration;
+		enum struct TimestampsToReturn: uint32_t {
+			Source = 0,		// Return the source timestamp.
+			Server = 1,		// Return the Server timestamp.
+			Both = 2,			// Return both the source and Server timestamps.
+			Neither = 3,	// Return neither timestamp.  This is the default value for MonitoredItems if a Variable value is not being accessed.
+											// For HistoryRead this is not a valid setting.
+		};
+		struct QualifiedName {
+			QualifiedName() {
+				namespaceIndex = 0;
+			}
+			std::string toString() const { return "TODO"; }// namespaceIndex == 0 ? "" :: }
+			uint16_t namespaceIndex;
+
+		// protected:
+			std::string name; //Restricted to 512 characters
+		};
+
+		enum BrowseDirection {
+			forward = 0,
+			inverse = 1,
+			both = 2
+		};
+
+		struct NodeClassBits {
+			uint8_t Object : 1;
+			uint8_t Variable : 1;
+			uint8_t Method : 1;
+			uint8_t ObjectType : 1;
+			uint8_t VariableType : 1;
+			uint8_t ReferenceType : 1;
+			uint8_t DataType : 1;
+			uint8_t View : 1;
+		};
+
+		union NodeClassMask {
+			NodeClassMask() { value = 0xFF; }
+			uint32_t value;
+			NodeClassBits bits;
+		};
+
+		struct BrowseResultBits {
+			uint8_t ReferenceType : 1;
+			uint8_t IsForward : 1;
+			uint8_t NodeClass : 1;
+			uint8_t BrowseName : 1;
+			uint8_t DisplayName : 1;
+			uint8_t TypeDefinition : 1;
+		};
+		union BrowseResultMask {
+			BrowseResultMask() {
+				value = 0x3F;
+			}
+			uint32_t value;
+			BrowseResultBits bits;
+		};
+		enum MonitoringMode {
+			disabled = 0,
+			sampling = 1,
+			reporting = 2
+		};
+		typedef uint32_t Counter;
+  }
+}
