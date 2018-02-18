@@ -71,5 +71,23 @@ It is in "incubation" stage. Source code is stored in private repository. Basic 
 - Create 64 bit installers for Windows and Linux
 ### Next versions
 TBD.
+
+## License and Copyright
+Copyright 2018, One-Way Aautomation Inc.
+
+Versions prior 1.0 can be distributed and used under MIT license terms (https://opensource.org/licenses/MIT)
+
+For versions starting from 1.0 licensing terms might change. Various options are under consideration, open source and commercial, such as:
+
+- Dual License:
+  - GPL 
+  - Commercial
+- MIT license (unrestricted).
+- Different licensing for different editions:
+  - Community - free
+  - Professional - Commercial
+
+Final decision will depend on how the project is perceived by OPC UA communitiy.
+
 ## How to use
 For instructions how to use it please visit home page for the sample [OPC UA Test Client project:](https://github.com/RavilN/OpcUaTestClient)
