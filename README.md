@@ -28,14 +28,14 @@ The key differentiators of this SDK from other existing in the market C++ SDKs w
   - Can simplify communication between redundancy set members.
 - For Client side, automatic re-connection with automatic creation of subscriptions and adding monitored items. 
 - Persistent storage to save/load configuration parameters and some current state parameters in both client side and server side:
-#### Client: 
-  - Namespace array to keep NodeIds static even if server side namespace array is changed;
-  - Subscriptions and monitored items. No server side handles are exposed - instead static client handles defined by the application are used, which simplifies mapping of received data changes to the right recipient after re-connections for example.
-  - Maintains cache of server's address space, so it can be browsed in offline mode when target server is not available;
-#### Server:
-  - Address space stored in data base. This removes restrictions for the number of nodes in address space by RAM size. As a result, it makes easy to create for example horizontally scale-able OPC UA Aggregating Server, which can combine address space of hundreds and thousands of factory level OPC UA Servers into common address space in the Cloud, accessible via single endpoint. The same endpoint can also be used to access historical and real time data, with high throughput (millions of data changes per second, utilizing fleet of instances if required).
-  - Sampled data values queue stored in database - storing it allows implementation of coming new feature in OPC UA "durable subscriptions" - where even long disconnections do not cause data loss.
-  - Sessions and Monitored Items - makes easy to implement "transparent redundancy", where after re-connecting to the other instance, the client does not need to create subscriptions and monitored items again. This is also directly related to support of horizontal scale-ability.
+  - Client: 
+    - Namespace array to keep NodeIds static even if server side namespace array is changed;
+    - Subscriptions and monitored items. No server side handles are exposed - instead static client handles defined by the application are used, which simplifies mapping of received data changes to the right recipient after re-connections for example.
+    - Maintains cache of server's address space, so it can be browsed in offline mode when target server is not available;
+  - Server:
+    - Address space stored in data base. This removes restrictions for the number of nodes in address space by RAM size. As a result, it makes easy to create for example horizontally scale-able OPC UA Aggregating Server, which can combine address space of hundreds and thousands of factory level OPC UA Servers into common address space in the Cloud, accessible via single endpoint. The same endpoint can also be used to access historical and real time data, with high throughput (millions of data changes per second, utilizing fleet of instances if required).
+    - Sampled data values queue stored in database - storing it allows implementation of coming new feature in OPC UA "durable subscriptions" - where even long disconnections do not cause data loss.
+    - Sessions and Monitored Items - makes easy to implement "transparent redundancy", where after re-connecting to the other instance, the client does not need to create subscriptions and monitored items again. This is also directly related to support of horizontal scale-ability.
 ## Current status of the project
 It is in "incubation" stage. Source code is stored in private repository. Basic proof of concept coding is done for the client side.
 ### Implemented features for client side:
