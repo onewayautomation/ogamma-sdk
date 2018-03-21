@@ -4,6 +4,7 @@
 #include "opcua/Enums.h"
 #include "opcua/NumericNodeId.h"
 #include "opcua/Utils.h"
+#include <boost/any.hpp>
 
 namespace OWA {
   namespace OpcUa {
@@ -26,6 +27,7 @@ namespace OWA {
         return RequestResponseTypeId::CreateSubscriptionRequest;
       }
       RequestHeader header;
+			boost::any		context;
 			Duration requestedPublishingInterval; // 0 or negative means fastest supported interval
 			uint32_t requestedLifetimeCount;
 			uint32_t requestedMaxKeepAliveCount;
@@ -53,6 +55,8 @@ namespace OWA {
 			Duration revisedPublishingInterval;
 			uint32_t revisedLifetimeCount;
 			uint32_t revisedMaxKeepAliveCount;
+
+			typedef std::shared_ptr<CreateSubscriptionResponse> Ptr;
     };
 
     struct ModifySubscriptionRequest {
@@ -60,6 +64,7 @@ namespace OWA {
         return RequestResponseTypeId::ModifySubscriptionRequest;
       }
       RequestHeader header;
+			boost::any		context;
 
 			typedef std::shared_ptr<ModifySubscriptionRequest> Ptr;
     };
@@ -75,6 +80,7 @@ namespace OWA {
         return RequestResponseTypeId::DeleteSubscriptionsRequest;
       }
       RequestHeader header;
+			boost::any		context;
 			std::vector<uint32_t> subscriptionIds;
 
 			typedef std::shared_ptr<DeleteSubscriptionsRequest> Ptr;
@@ -96,6 +102,7 @@ namespace OWA {
         return RequestResponseTypeId::TransferSubscriptionsRequest;
       }
       RequestHeader header;
+			boost::any		context;
 			typedef std::shared_ptr<TransferSubscriptionsRequest> Ptr;
     };
 
@@ -108,6 +115,7 @@ namespace OWA {
         return RequestResponseTypeId::SetPublishingModeRequest;
       }
       RequestHeader header;
+			boost::any		context;
 			typedef std::shared_ptr<SetPublishingModeRequest> Ptr;
     };
 
@@ -135,6 +143,7 @@ namespace OWA {
         return RequestResponseTypeId::PublishRequest;
       }
       RequestHeader header;
+			boost::any		context;
 			std::vector<SubscriptionAcknowledgement> subscriptionAcknowledgements;
 			typedef std::shared_ptr<PublishRequest> Ptr;
 			~PublishRequest() {
@@ -165,6 +174,7 @@ namespace OWA {
         return RequestResponseTypeId::RepublishRequest;
       }
       RequestHeader header;
+			boost::any		context;
 			typedef std::shared_ptr<RepublishRequest> Ptr;
     };
     struct RepublishResponse {

@@ -1,6 +1,7 @@
 #pragma once
 #include "opcua/NodeId.h"
 #include "opcua/NumericNodeId.h"
+#include <map>
 
 namespace OWA {
   namespace OpcUa {
@@ -12,7 +13,7 @@ namespace OWA {
       ExpandedNodeId(Ids::NumericNodeId id);
       static ExpandedNodeId getId(RequestResponseTypeId id);
       RequestResponseTypeId getTypeId();
-      bool operator==(const ExpandedNodeId other);
+      bool operator==(const ExpandedNodeId other) const;
       uint32_t    serverIndex;
       std::string namespaceURI;
       NodeId      nodeId;

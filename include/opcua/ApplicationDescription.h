@@ -10,6 +10,8 @@ namespace OWA {
         applicationType = ApplicationType::SERVER_0;
       }
 
+			std::string getUrlForProtocol(const std::string& protocol);
+
       // The globally unique identifier for the application instance.This URI is used as ServerUri in Services if the application is a Server.
       std::string applicationUri;
       
@@ -39,5 +41,5 @@ namespace OWA {
         */
       std::vector<std::string> discoveryUrls;
     };
-  }
+	}
 }

@@ -3,6 +3,7 @@
 #include "opcua/ResponseHeader.h"
 #include "opcua/Enums.h"
 #include "opcua/NumericNodeId.h"
+#include <boost/any.hpp>
 
 namespace OWA {
   namespace OpcUa {
@@ -27,7 +28,7 @@ namespace OWA {
 			NodeId referenceTypeId;
 			bool includeSubtypes;
 			NodeClassMask nodeClassMask;
-			BrowseResultMask resultMask;
+			OpcUa::BrowseResultMask resultMask;
 		};
 
 		struct ReferenceDesciption {
@@ -36,7 +37,7 @@ namespace OWA {
 			ExpandedNodeId nodeId;
 			QualifiedName browseName;
 			LocalizedText displayName;
-			NodeClassMask nodeClass;
+			NodeClass nodeClass;
 			ExpandedNodeId typeDefiniton;
 		};
 
@@ -59,6 +60,7 @@ namespace OWA {
 			ViewDescription		view;
 			uint32_t					requestedMaxReferencesPerNode;
 			std::vector<BrowseDescription> nodesToBrowse;
+			boost::any				context;
 			typedef std::shared_ptr<BrowseRequest> Ptr;
 			~BrowseRequest() {
 				int i = 0; //TODO
@@ -69,6 +71,7 @@ namespace OWA {
       ResponseHeader header;
 			std::vector<BrowseResult> results;
 			std::vector<DiagnosticInfo> diagnosticInfos;
+			typedef std::shared_ptr<BrowseResponse> Ptr;
     };
 
     struct BrowseNextRequest {
@@ -83,6 +86,7 @@ namespace OWA {
 				header.utcTime = 0;
 			}
       RequestHeader header;
+			boost::any		context;
 			bool releaseContinuationPoints;
 			std::vector<ByteString> continuationPoints;
 			typedef std::shared_ptr<BrowseNextRequest> Ptr;
@@ -92,6 +96,8 @@ namespace OWA {
       ResponseHeader header;
 			std::vector<BrowseResult> results;
 			std::vector<DiagnosticInfo> diagnosticInfos;
+
+			typedef std::shared_ptr<BrowseNextResponse> Ptr;
     };
 
     struct TranslateBrowsePathsToNodeIdsRequest {
@@ -99,6 +105,7 @@ namespace OWA {
         return RequestResponseTypeId::TransferSubscriptionsRequest;
       }
       RequestHeader header;
+			boost::any		context;
 
 			typedef std::shared_ptr<TranslateBrowsePathsToNodeIdsRequest> Ptr;
     };

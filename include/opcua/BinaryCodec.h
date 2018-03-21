@@ -230,6 +230,7 @@ namespace OWA {
 				void decode(DataBufferPtr& buffer, DataValue& value);
 				void decode(DataBufferPtr& buffer, Variant& value);
 				void decode(DataBufferPtr& buffer, float& value);
+				// void decode(DataBufferPtr& buffer, double& value);
 				void decode(DataBufferPtr& buffer, QualifiedName& value);
 				void decode(DataBufferPtr& buffer, bool& value);
 				void decode(DataBufferPtr& buffer, BrowseResult& value);
@@ -281,7 +282,7 @@ namespace OWA {
           for (int index = 0; index < length; index++) {
             ArrayElementType entry;
             decode(buffer, entry);
-            value.push_back(entry);
+            value.push_back(std::move(entry));
           }
         }
 

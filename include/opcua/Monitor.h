@@ -54,7 +54,7 @@ namespace OWA {
 			uint32_t internalId;
 			TimestampsToReturn timestamsToReturn;
 			std::vector<MonitoredItemCreateRequest> itemsToCreate;
-
+			boost::any		context;
 			typedef std::shared_ptr<CreateMonitoredItemsRequest> Ptr;
     };
     struct CreateMonitoredItemsResponse {
@@ -62,6 +62,8 @@ namespace OWA {
 			std::vector<MonitoredItemCreateResult> results;
 			std::vector<DiagnosticInfo> diagnosticInfos;
 			inline bool isGood() { return Utils::isGood(*this); }
+
+			typedef std::shared_ptr<CreateMonitoredItemsResponse> Ptr;
     };
 
     struct ModifyMonitoredItemsRequest {
@@ -69,6 +71,7 @@ namespace OWA {
         return RequestResponseTypeId::ModifyMonitoredItemsRequest;
       }
       RequestHeader header;
+			boost::any		context;
 			typedef std::shared_ptr<ModifyMonitoredItemsRequest> Ptr;
     };
     struct ModifyMonitoredItemsResponse {
@@ -91,6 +94,7 @@ namespace OWA {
 
 			uint32_t internalData1;
 			std::vector<uint32_t> internalData2;
+			boost::any		context;
 
 			typedef std::shared_ptr<DeleteMonitoredItemsRequest> Ptr;
     };
@@ -109,6 +113,7 @@ namespace OWA {
         return RequestResponseTypeId::SetTriggeringRequest;
       }
       RequestHeader header;
+			boost::any		context;
 			typedef std::shared_ptr<SetTriggeringRequest> Ptr;
     };
     struct SetTriggeringResponse {
@@ -121,6 +126,7 @@ namespace OWA {
         return RequestResponseTypeId::SetMonitoringModeRequest;
       }
       RequestHeader header;
+			boost::any		context;
 			typedef std::shared_ptr<SetMonitoringModeRequest> Ptr;
     };
     struct SetMonitoringModeResponse {

@@ -1,6 +1,5 @@
 #ifndef owa_opcua_connection_h
 #define owa_opcua_connection_h
-#include <botan/init.h>
 #include "opcua/Utils.h"
 #include "opcua/Cryptor.h"
 #include "opcua/LocalizedText.h"
@@ -32,6 +31,9 @@
 
 namespace OWA {
   namespace OpcUa {
+		// This type callback is called whenever connection state is changed:
+		typedef std::function <void(const std::string& endpointUrl, ConnectionState state, const OperationResult& result)> StateChangeCallback;
+
 		class Connection : public Configurable {
 		protected:
 		enum Action {
@@ -45,26 +47,23 @@ namespace OWA {
 			CreateMonitoredItems,
 			Disconnect
 		};
-		enum State {
-			Initial = 0,
-			Connecting,
-			Connected,
-			CouldNotConnect,
-			Disconnecting,
-			Disconnected
-		};
+
     public:
       /**
       * Connection object with default parameters: protocol opc.tcp with binary encoding and base cryptography class.
       */
       static std::shared_ptr<Connection> create();
+			static std::shared_ptr<Connection> create(StateChangeCallback& stateChangeCallback);
       ~Connection();
+
+			
+
     protected:
-      Connection();
+      Connection(StateChangeCallback& stateChangeCallback);
 
       void init();
 
-      void setReferenceToSelf(std::weak_ptr<Connection> selfReference){};
+			void setReferenceToSelf(std::weak_ptr<Connection> reference) { selfReference = reference; };
       std::weak_ptr<Connection> selfReference;
 
       // Default callback handlers, to make callback function argument optional, so callers of Connection can omit it:
@@ -91,8 +90,13 @@ namespace OWA {
 			static bool onSetMonitoringModeResponse(std::shared_ptr<SetMonitoringModeRequest>&, std::shared_ptr<SetMonitoringModeResponse>&) { return true; }
 			static bool onDeleteMonitoredItemsResponse(std::shared_ptr<DeleteMonitoredItemsRequest>&, std::shared_ptr<DeleteMonitoredItemsResponse>&) { return true; }
 			static bool onSetTriggeringResponse(std::shared_ptr<SetTriggeringRequest>&, std::shared_ptr<SetTriggeringResponse>&) { return true; }
-      
+			boost::any context;
+
     public:
+
+			void setContext(boost::any& newContext);
+			boost::any getContext();
+
       // Configuration settings defined what UA Server we want to connect to.
       void setConfiguration(const ClientConfiguration& config);
       // This function will be called to get a password used to encrypt certificate private key.
@@ -145,7 +149,7 @@ namespace OWA {
 				std::bind(&Connection::onBrowseNextResponse, std::placeholders::_1, std::placeholders::_2));
 
 			std::future<std::shared_ptr<CreateSubscriptionResponse>> send(std::shared_ptr<CreateSubscriptionRequest>& request,
-				std::shared_ptr<NotificationObserver>& notificationCallback,
+				NotificationObserver& notificationCallback,
 				onResponseCallback<CreateSubscriptionRequest, CreateSubscriptionResponse> f =
 				std::bind(&Connection::onCreateSubscriptionResponse, std::placeholders::_1, std::placeholders::_2) );
 			
@@ -198,7 +202,7 @@ namespace OWA {
       * If a session was created, then it is closed
       * @param deleteSubscriptions is used if a session was created.
       */
-      virtual std::future<OperationResult> disconnect(bool deleteSubscriptions, generalCallback f = std::bind(&Connection::handleConnectDisconnect, std::placeholders::_1));
+      virtual std::future<OperationResult> disconnect(bool deleteSubscriptions = true, generalCallback f = std::bind(&Connection::handleConnectDisconnect, std::placeholders::_1));
 
       /** 
       * Starts to listen to the port defined in the URL. If URL is not defined, then whatever is defined in configuration. 
@@ -212,7 +216,8 @@ namespace OWA {
       */
       virtual std::future<OperationResult> stopListen(const boost::any& context){ return std::promise<OperationResult>().get_future(); };
 
-      void onStateChangeCallback(const std::string& endpointUrl, ConnectionState state, const OperationResult& result);
+			// this method is called by lower level transport connection when its state changed.
+      void onTransportStateChange(const std::string& endpointUrl, ConnectionState state, const OperationResult& result);
 
       bool onServiceFault(std::shared_ptr<ServiceFaultResponse>& response);
       bool onOpenSecureChannel(std::shared_ptr<OpenSecureChannelResponse>& response);
@@ -256,7 +261,7 @@ namespace OWA {
 					std::shared_ptr<RequestType>* pointerToRequest = static_cast<std::shared_ptr<RequestType>*>(context->request);
 
 					if (callback != 0 && pointerToRequest != 0) {
-						Utils::getThreadPool()->enqueue(std::bind(*callback, *pointerToRequest, response));
+						Utils::getCallbackThreadPool()->enqueue(std::bind(*callback, *pointerToRequest, response));
 					}
 					if (promise != 0) {
 						promise->set_value(response);
@@ -268,13 +273,14 @@ namespace OWA {
         return true;
       }
 
+			std::string GetName();
+
     protected:
 			void addConnectionAction(Action action, bool toTheFront = false);
 			Action getNextConnectionAction(bool removeFromQueue = false);
-			void finishConnectionAttempt(State newState, OperationResult result);
-			void reportConnectionProgress(OperationResult result);
-      State state;
-			std::atomic<State> desiredState;
+			void finishConnectionAttempt(ConnectionState newState, OperationResult result);
+      std::atomic<ConnectionState> state;
+			std::atomic<ConnectionState> desiredState;
 
       template<typename RequestType, typename ResponseType>
       std::future<std::shared_ptr<ResponseType>> sendRequest(std::shared_ptr<RequestType>& request, onResponseCallback<RequestType, ResponseType> f);
@@ -293,7 +299,7 @@ namespace OWA {
       * If request Id is not 0, then it is removed from the map. Otherwise it needs to be removed by special method - removeConnectContext();
       */
       bool getRequestContext(RequestId id, std::shared_ptr<ClientContext>& cw, bool deleteFromMap = true);
-      bool removeConnectContext(State newState);
+      bool removeConnectContext(ConnectionState newState);
       int32_t getNumberOfPendingRequests();
 			void callPublishRequestsAfterCreateSubscriptioin();
 			void startConnectionCheck();
@@ -335,14 +341,14 @@ namespace OWA {
 
 
 			std::mutex mutexPublishing;
-			std::map < uint32_t, std::shared_ptr<NotificationObserver>> notificaltionCallbacks;
-			std::map < CreateSubscriptionRequest*, std::shared_ptr<NotificationObserver>> pendingNotificaltionCallbacks;
+			std::map < uint32_t, NotificationObserver> notificaltionCallbacks;
+			std::map < CreateSubscriptionRequest*, NotificationObserver> pendingNotificaltionCallbacks;
 			std::atomic<uint32_t> numberOfPendingPublishRequests;
 			std::vector <SubscriptionAcknowledgement> acks;
 
 			// After re-connections all subscriptions and monitored items which existed before disconnected are re-created automatically.
-			// This can cause change of server side ID for subscriptions and monitored items, so previsously returned to the application ids might become invalid.
-			// So the connection maintaines internal maps of originally returned handles to currently up to date ids, so the application can still use originally 
+			// This can cause change of server side ID for subscriptions and monitored items, so previously returned to the application ids might become invalid.
+			// So the connection maintains internal maps of originally returned handles to currently up to date ids, so the application can still use originally 
 			// returned ids.
 
 			std::mutex mutexIdMaps;
@@ -363,6 +369,7 @@ namespace OWA {
 			std::set<timer_id> timers;
 			std::set<timer_id> orphanTimers;
 
+			StateChangeCallback stateChangeCallback;
     };
 
     // Implementation of the send (called from "send" method):
@@ -421,7 +428,7 @@ namespace OWA {
 
 			// Schedule:
 			if (callback != 0) {
-				Utils::getThreadPool()->enqueue(*callback, *pointerToRequest, response);
+				Utils::getCallbackThreadPool()->enqueue(*callback, *pointerToRequest, response);
 			}
 			// Set result in the original future:
 			if (promise != 0) {

@@ -5,20 +5,14 @@
 namespace OWA {
   namespace OpcUa {
     struct DiagnosticInfo {
-      DiagnosticInfo() {
-        innerDiagnosticInfo = 0;
-        symbolicId = -1;
-        namespaceUri = -1;
-        locale = -1;
-        localizedText = -1;
-        innerStatusCode = StatusCode::Good;
-      }
-      void clear() {
-        if (innerDiagnosticInfo != 0) {
-          delete innerDiagnosticInfo;
-          innerDiagnosticInfo = 0;
-        }
-      }
+			DiagnosticInfo();
+			DiagnosticInfo(const DiagnosticInfo& other);
+			void clear();
+
+			bool operator==(const DiagnosticInfo& other) const;
+
+			DiagnosticInfo& operator=(const DiagnosticInfo& other);
+
       int32_t symbolicId;
       int32_t namespaceUri;
       int32_t locale;
@@ -26,9 +20,7 @@ namespace OWA {
       std::string additionalInfo;
       StatusCode innerStatusCode;
       DiagnosticInfo* innerDiagnosticInfo;
-			std::string toString() const {
-				return "not implemented";
-			}
+			std::string toString() const;
     };
-  }
+	}
 }

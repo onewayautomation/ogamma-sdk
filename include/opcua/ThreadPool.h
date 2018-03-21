@@ -15,6 +15,8 @@
 #include <functional>
 #include <stdexcept>
 
+#include <iostream>
+
 namespace OWA {
 	namespace OpcUa {
 		class ThreadPool {
@@ -49,25 +51,31 @@ namespace OWA {
 			}
 			for (size_t i = 0; i < threads; ++i)
 				workers.emplace_back(
-					[this]
-			{
-				for (;;)
-				{
-					std::function<void()> task;
-					{
-						std::unique_lock<std::mutex> lock(this->queue_mutex);
-						this->condition.wait(lock,
-							[this] { return this->stop || !this->tasks.empty(); });
-						if (this->stop && this->tasks.empty()) {
-							return;
+					[this] {
+						for (;;)
+						{
+							std::function<void()> task;
+							{
+								std::unique_lock<std::mutex> lock(this->queue_mutex);
+								this->condition.wait(lock,
+									[this]
+								{
+									return this->stop || !this->tasks.empty();
+								});
+								if (this->stop && this->tasks.empty()) {
+									return;
+								}
+								task = this->tasks.front();
+								this->tasks.pop();
+								if (tasks.size() >= 10)
+								{
+									std::cout << "Pop - Thread pool task queue size is " << tasks.size() << "\n";
+								}
+							}
+							task();
 						}
-						task = this->tasks.front();
-						this->tasks.pop();
 					}
-					task();
-				}
-			}
-			);
+				);
 		}
 
 		//// add new work item to the pool

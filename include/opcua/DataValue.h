@@ -1,4 +1,5 @@
 #pragma once
+#include <stdint.h>
 #include "opcua/Variant.h"
 
 namespace OWA {

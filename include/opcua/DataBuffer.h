@@ -30,6 +30,10 @@ namespace OWA {
         return buffer.size();
       }
       void sgetn(uint8_t* m, uint32_t count) {
+				if ((position + count) > buffer.size())
+				{
+					throw std::exception("Decoding error");
+				}
         memcpy(m, buffer.data() + position, count);
         position += count;
       }

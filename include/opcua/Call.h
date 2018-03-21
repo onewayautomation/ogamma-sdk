@@ -3,6 +3,7 @@
 #include "opcua/ResponseHeader.h"
 #include "opcua/Enums.h"
 #include "opcua/NumericNodeId.h"
+#include <boost/any.hpp>
 
 namespace OWA {
   namespace OpcUa {
@@ -11,6 +12,7 @@ namespace OWA {
         return RequestResponseTypeId::CallRequest;
       }
       RequestHeader header;
+			boost::any		context;
 			typedef std::shared_ptr<CallRequest> Ptr;
     };
     struct CallResponse {

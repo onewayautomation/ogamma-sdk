@@ -237,6 +237,7 @@ enum struct StatusCode: uint32_t {     BadUnexpectedError = 0x80010000, //An une
 class StatusCodeUtil {
 public:
 	static bool isGood(const StatusCode code);
+	static bool isBad(const StatusCode code);
 	static std::string toString(StatusCode code);
 protected:
 static std::map<StatusCode, std::string> codeToStringMap;

@@ -1,6 +1,6 @@
 ﻿#pragma once
-#include <stdint.h>
 #include <string>
+#include <stdint.h>
 #include "opcua/DateTime.h"
 #include "opcua/Guid.h"
 #include "opcua/ByteString.h"
@@ -9,10 +9,20 @@
 #include "opcua/LocalizedText.h"
 #include "opcua/ExtensionObject.h"
 #include "opcua/DiagnosticInfo.h"
+//#include "opcua/DataValue.h"
 
 namespace OWA {
 	namespace OpcUa {
-		typedef std::string XmlElement;
+
+		// TODO!!!
+		class XmlElement : public std::string 
+		{
+		public:
+			XmlElement() {};
+			XmlElement(const std::string& other);
+			XmlElement(const XmlElement& other);
+			virtual ~XmlElement() {}
+		};
 
 		struct Variant {
 			enum dataType {
@@ -122,7 +132,8 @@ namespace OWA {
 			Variant(const std::string& other);
 			Variant(const DateTime& other);
 			Variant(const Guid& other);
-			//Variant(const XmlElement& other);
+			Variant(const ByteString& other);
+			Variant(const XmlElement& other);
 			Variant(const NodeId& other);
 			Variant(const ExpandedNodeId& other);
 			Variant(const StatusCode& other);
@@ -145,7 +156,8 @@ namespace OWA {
 			Variant(const std::vector<std::string>& other);
 			Variant(const std::vector<DateTime>& other);
 			Variant(const std::vector<Guid>& other);
-			//Variant(const std::vector<XmlElement>& other);
+			Variant(const std::vector<ByteString>& other);
+			Variant(const std::vector<XmlElement>& other);
 			Variant(const std::vector<NodeId>& other);
 			Variant(const std::vector<ExpandedNodeId>& other);
 			Variant(const std::vector<StatusCode>& other);
@@ -173,7 +185,8 @@ namespace OWA {
 			Variant& operator=(const std::string& other);
 			Variant& operator=(const DateTime& other);
 			Variant& operator=(const Guid& other);
-			//Variant& operator=(const XmlElement& other);
+			Variant& operator=(const ByteString& other);
+			Variant& operator=(const XmlElement& other);
 			Variant& operator=(const NodeId& other);
 			Variant& operator=(const ExpandedNodeId& other);
 			Variant& operator=(const StatusCode& other);
@@ -197,7 +210,8 @@ namespace OWA {
 			Variant& operator=(const std::vector<std::string>& other);
 			Variant& operator=(const std::vector<DateTime>& other);
 			Variant& operator=(const std::vector<Guid>& other);
-			//Variant& operator=(const std::vector<XmlElement>& other);
+			Variant& operator=(const std::vector<ByteString>& other);
+			Variant& operator=(const std::vector<XmlElement>& other);
 			Variant& operator=(const std::vector<NodeId>& other);
 			Variant& operator=(const std::vector<ExpandedNodeId>& other);
 			Variant& operator=(const std::vector<StatusCode>& other);
@@ -207,10 +221,14 @@ namespace OWA {
 			Variant& operator=(const std::vector<DiagnosticInfo>& other);
 			Variant& operator=(const std::vector<Variant>& other);
 
+			bool operator==(const Variant& other) const;
+			bool operator!=(const Variant& other) const;
 			// Methods
 			void clear();
 			std::string toString() const;
-			private: void init();
+
+		private: 
+			void init();
 		};
 	}
 }

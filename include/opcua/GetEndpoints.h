@@ -3,6 +3,7 @@
 #include "opcua/ResponseHeader.h"
 #include "opcua/ApplicationDescription.h"
 #include "opcua/ByteString.h"
+#include <boost/any.hpp>
 
 namespace OWA {
   namespace OpcUa {
@@ -14,6 +15,8 @@ namespace OWA {
         return RequestResponseTypeId::GetEndpointsRequest;
       }
       RequestHeader header;
+			boost::any		context;
+
       /** The network address that the Client used to access the Discovery
         Endpoint.
         The Server uses this information for diagnostics and to determine what

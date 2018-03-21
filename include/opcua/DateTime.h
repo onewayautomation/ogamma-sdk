@@ -16,8 +16,9 @@ namespace OWA {
       std::chrono::time_point<std::chrono::system_clock> toChronoTimePoint() const;
       DateTime& operator=(const std::chrono::time_point<std::chrono::system_clock> chronoTimePoint);
       DateTime& operator=(int64_t newValue);
+			DateTime& operator=(const DateTime& other);
       bool operator<(const DateTime& other);
-      bool operator==(const DateTime& other);
+      bool operator==(const DateTime& other) const;
 
       std::string toString(bool localTime = false) const;
 			inline bool isSet() { return value > 0; }

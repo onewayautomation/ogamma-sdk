@@ -4,6 +4,8 @@
 #include "opcua/Enums.h"
 #include "opcua/NumericNodeId.h"
 #include "opcua/DataValue.h"
+#include "opcua/Utils.h"
+#include <boost/any.hpp>
 
 namespace OWA {
   namespace OpcUa {
@@ -47,6 +49,8 @@ namespace OWA {
 			TimestampsToReturn	timestampsToReturn;
 			std::vector<ReadValueId>	nodesToRead;
 			
+			boost::any					context;
+
 			typedef std::shared_ptr<ReadRequest> Ptr;
     };
 
@@ -66,6 +70,7 @@ namespace OWA {
         return RequestResponseTypeId::WriteRequest;
       }
       RequestHeader header;
+			boost::any		context;
 
 			typedef std::shared_ptr<WriteRequest> Ptr;
     };
@@ -77,6 +82,7 @@ namespace OWA {
         return RequestResponseTypeId::HistoryReadRequest;
       }
       RequestHeader header;
+			boost::any		context;
 
 			typedef std::shared_ptr <HistoryReadRequest> Ptr;
     };
@@ -91,6 +97,7 @@ namespace OWA {
         return RequestResponseTypeId::HistoryUpdateRequest;
       }
       RequestHeader header;
+			boost::any		context;
 
 			typedef std::shared_ptr<HistoryUpdateRequest> Ptr;
     };

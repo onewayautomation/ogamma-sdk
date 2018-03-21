@@ -8,11 +8,18 @@
 #include "opcua/ThreadPool.h"
 #include "opcua/Timer.h"
 #include "opcua/ioService.h"
+#include "opcua/Enums.h"
+#include <sstream>
+#include <chrono>
+#include <boost/date_time/posix_time/ptime.hpp>
 
 namespace OWA {
 	namespace OpcUa {
 		class Timer;
-		namespace Utils{
+		class EndpointDescription;
+
+		namespace Utils
+		{
 			inline bool isGood(StatusCode code) {
 				if ((((uint32_t)code) & 0x80000000) == 0) {
 					return true;
@@ -32,6 +39,10 @@ namespace OWA {
 			
 			std::vector<ApplicationDescription> selectServers(std::vector<ApplicationDescription>& applications);
 
+			inline std::string toString(StatusCode code) {
+				return StatusCodeUtil::toString(code);
+			}
+
 			inline std::string statusToString(StatusCode code) {
 				return StatusCodeUtil::toString(code);
 			}
@@ -39,9 +50,30 @@ namespace OWA {
 			void initThreadPool(int numberOfThreads = 1);
 			void closeThreadPool();
 			std::shared_ptr<ThreadPool> getThreadPool();
+			
+			void initCallbackThreadPool(int numberOfThreads = 1);
+			std::shared_ptr<ThreadPool> getCallbackThreadPool();
+			void closeCallbackThreadPool();
+
 			std::shared_ptr<Timer> getTimer();
 			std::shared_ptr<boost::asio::io_service> claimIoService();
 			void releaseIoService(std::shared_ptr<boost::asio::io_service>& service);
+
+			std::string toString(OpcUa::SecurityMode mode, const std::string& locale = "en");
+			std::string toString(OpcUa::MessageSecurityMode mode, const std::string& locale = "en");
+			std::string toString(const OpcUa::EndpointDescription& ed);
+			std::string toString(const OpcUa::UserIdentityTokenType uitt);
+			std::string toString(const OpcUa::ConnectionState state, const std::string& locale = "en");
+
+			std::string currentTimestamp();
+			std::string toLower(const std::string& str);
+			bool startsWith(const std::string& str, const std::string& subs);
+
+
+			boost::posix_time::ptime convert(const std::chrono::system_clock::time_point& from);
+
+			std::chrono::system_clock::time_point convert(const boost::posix_time::ptime& from);
+
 		}
 	}
 }

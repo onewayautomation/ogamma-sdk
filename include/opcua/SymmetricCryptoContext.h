@@ -1,5 +1,4 @@
 #pragma once
-#include <botan/botan.h>
 #include "opcua/Enums.h"
 
 #include <memory>

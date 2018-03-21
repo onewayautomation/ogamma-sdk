@@ -2,6 +2,7 @@
 #include <stdint.h>
 #include <assert.h>
 #include <string>
+#include <sstream>
 
 namespace OWA {
   namespace OpcUa {
@@ -180,7 +181,7 @@ namespace OWA {
     };
 
     enum ConnectionState : uint8_t {
-      Initialized = 0, 
+      Initial = 0, 
       Connecting,
       // Connection is established:
       Connected,
@@ -239,11 +240,32 @@ namespace OWA {
 			QualifiedName() {
 				namespaceIndex = 0;
 			}
-			std::string toString() const { return "TODO"; }// namespaceIndex == 0 ? "" :: }
+			bool operator==(const QualifiedName& other) const
+			{
+				if (this == &other)
+				{
+					return true;
+				}
+				if (namespaceIndex == other.namespaceIndex && name == other.name)
+				{
+					return true;
+				}
+				return false;
+			}
+			std::string toString() const { 
+				std::stringstream s;
+				if (namespaceIndex > 0)
+				{
+					s << "ns=" << namespaceIndex << ":";
+				}
+				s << name;
+
+				return s.str();
+			}
 			uint16_t namespaceIndex;
 
 		// protected:
-			std::string name; //Restricted to 512 characters
+			std::string name; // Should be restricted to 512 characters
 		};
 
 		enum BrowseDirection {
@@ -289,6 +311,47 @@ namespace OWA {
 			sampling = 1,
 			reporting = 2
 		};
+
+		enum AttributeId
+		{
+			nodeId			= 1,
+			nodeClass		= 2,
+			browseName	= 3,
+			displayName = 4,
+			description = 5,
+			writeMask		= 6,
+			userWriteMask = 7,
+			isAbstract		= 8,
+			symmetric			= 9,
+			inverseName		= 10,
+			containsNoLoops	= 11,
+			eventNotifier		= 12,
+			value						= 13,
+			dataType				= 14,
+			valueRank				= 15,
+			arrayDimensions	= 16,
+			accessLevel			= 17,
+			userAccessLevel	= 18,
+			minimumSamplingInterval	= 19,
+			historizing			= 20,
+			executable			= 21,
+			userExecutable	= 22
+		};
+
+		// NodeClass enum values are defined in Part 3.
+		enum class NodeClass
+		{
+			unspecifided = 0,
+			object = 1,
+			variable = 2,
+			method = 4,
+			objectType = 8,
+			variableType = 16,
+			referenceType = 32,
+			dataType = 64,
+			view = 128
+		};
+
 		typedef uint32_t Counter;
   }
 }

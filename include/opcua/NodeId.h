@@ -29,14 +29,18 @@ namespace OWA {
       NodeId(const ByteString& id, uint16_t namespaceIndex = 0);
 			NodeId(Ids::NumericNodeId standardNumericNodeId);
 			NodeId& operator=(const NodeId& other);
-      bool operator==(const NodeId& other);
+      bool operator==(const NodeId& other) const;
       virtual ~NodeId();
 
       inline uint16_t getNamespaceIndex() const {
         return namespaceIndex;
       };
 
-      inline IdentifierType getIdentifierType() const {
+			inline void setNamespaceIndex(const uint16_t newIndex = 0) {
+				 namespaceIndex = newIndex;
+			};
+			
+			inline IdentifierType getIdentifierType() const {
         return identifierType;
       }
 
@@ -48,7 +52,10 @@ namespace OWA {
       void setGuidIdentifier(const Guid& id, uint16_t namespaceIndex = 0);
       void setOpaqueIdentifier(const ByteString& id, uint16_t namespaceIndex = 0);
 			std::string toString() const;
-    protected:
+			
+			bool parse(const std::string& valueAsString);
+    
+		protected:
       uint16_t          namespaceIndex;
       IdentifierType    identifierType;
       NodeIdIdentifier  identifier;
