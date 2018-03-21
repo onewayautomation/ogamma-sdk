@@ -87,7 +87,9 @@ For versions starting from 1.0 licensing terms might change. Various options are
   - Community - free
   - Professional - Commercial
 
-Final decision will depend on how the project is perceived by OPC UA communitiy.
+Final decision will depend on how the project is perceived by OPC UA community.
+
+Most likely for open source projects, as well as for personal usage and educational purposes binary redistributables will be free. 
 
 ## How to use
 For instructions how to use it please visit home page for the sample [OPC UA Test Client project:](https://github.com/RavilN/OpcUaTestClient)
