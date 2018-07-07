@@ -7,6 +7,7 @@ namespace OWA {
     struct DiagnosticInfo {
 			DiagnosticInfo();
 			DiagnosticInfo(const DiagnosticInfo& other);
+			~DiagnosticInfo();
 			void clear();
 
 			bool operator==(const DiagnosticInfo& other) const;

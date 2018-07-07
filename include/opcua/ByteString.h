@@ -17,10 +17,11 @@ namespace OWA {
 			ByteString& operator=(const ByteString& other);
 			ByteString& operator=(const std::vector<uint8_t>& other);
 			ByteString& operator=(const std::string& other);
+			ByteString& operator=(const char* other);
 			ByteString& operator=(const Botan::secure_vector<uint8_t>& other);
 			bool operator==(const ByteString& other);
 
-			std::string toString() const;
+			std::string toString(size_t maxElements = 10) const;
 			
 			virtual ~ByteString() { }
     };

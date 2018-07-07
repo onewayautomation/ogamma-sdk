@@ -100,6 +100,8 @@
 #include <vector>
 #include <stack>
 #include <set>
+#include <map>
+#include <stdint.h>
 
 #include "opcua/ThreadPool.h"
 
@@ -166,17 +168,17 @@ namespace OWA {
 			bool done = false;
 
 			// The vector that holds all active events.
-			std::vector<detail::Event> events;
+			std::map<uint32_t, detail::Event> events;
 			// Sorted queue that has the next timeout at its top.
 			std::multiset<detail::Time_event> time_events;
 
-			// A list of ids to be re-used. If possible, ids are used from this pool.
-			std::stack<timer_id> free_ids;
+			uint32_t nextId;
 			std::shared_ptr<ThreadPool> threadPool;
 		public:
-			Timer(std::shared_ptr<ThreadPool>&& tp) : m{}, cond{}, worker{}, events{}, time_events{}, free_ids{}, threadPool(tp)
+			Timer(std::shared_ptr<ThreadPool>&& tp) : m{}, cond{}, worker{}, events{}, time_events{}, threadPool(tp)
 			{
 				scoped_m lock(m);
+				nextId = 0;
 				done = false;
 				worker = std::thread(std::bind(&Timer::run, this));
 			}
@@ -190,9 +192,6 @@ namespace OWA {
 				worker.join();
 				events.clear();
 				time_events.clear();
-				while (!free_ids.empty()) {
-					free_ids.pop();
-				}
 			}
 			
 			/**
@@ -206,20 +205,10 @@ namespace OWA {
 				const timestamp &when, handler_t &&handler, const duration &period = duration::zero())
 			{
 				scoped_m lock(m);
-				timer_id id = 0;
-				// Add a new event. Prefer an existing and free id. If none is available, add
-				// a new one.
-				if (free_ids.empty()) {
-					id = events.size();
-					detail::Event e(id, when, period, std::move(handler));
-					events.push_back(std::move(e));
-				}
-				else {
-					id = free_ids.top();
-					free_ids.pop();
-					detail::Event e(id, when, period, std::move(handler));
-					events[id] = std::move(e);
-				}
+				nextId += 1;
+				timer_id id = nextId;
+				detail::Event e(id, when, period, std::move(handler));
+				events[id] = std::move(e);
 				time_events.insert(detail::Time_event{ when, id });
 				lock.unlock();
 				cond.notify_all();
@@ -228,7 +217,7 @@ namespace OWA {
 			
 			template<class F, class... Args>
 			timer_id add(const timestamp& when, const duration& period, F&& f, Args&&... args) {
-				// Define generic funtion with any number / type of args
+				// Define generic function with any number / type of args
 				// and return type, make it callable without args(void func())
 				// using std::bind
 				auto func = std::bind(std::forward<F>(f), std::placeholders::_1, std::forward<Args>(args)...);
@@ -236,8 +225,6 @@ namespace OWA {
 				handler_t task = func;
 				return add(when, (handler_t &&) task, period);
 			}
-
-
 
 			/**
 			* Overloaded `add` function that uses a `std::chrono::duration` instead of a
@@ -266,15 +253,19 @@ namespace OWA {
 			bool remove(timer_id id)
 			{
 				scoped_m lock(m);
-				if (events.size() < id) {
+				auto i = events.find(id);
+				if (i == events.end()) 
+				{
 					return false;
 				}
+				else
+				{
+					events.erase(i);
+				}
 				bool result = false;
-				events[id].valid = false;
 				auto it = std::find_if(time_events.begin(), time_events.end(),
 					[&](const detail::Time_event &te) { return te.ref == id; });
 				if (it != time_events.end()) {
-					free_ids.push(it->ref);
 					time_events.erase(it);
 					result = true;
 				}
@@ -297,27 +288,30 @@ namespace OWA {
 						detail::Time_event te = *time_events.begin();
 						if (clock::now() >= te.next) {
 
-							// Remove time event
+							auto nextTask = events[te.ref].handler;
+							auto nextTaskId = te.ref;
+
+							// Remove time event from the queue:
 							time_events.erase(time_events.begin());
-
-							// Invoke the handler
-							lock.unlock();
-							// events[te.ref].handler(te.ref);
-							threadPool->enqueue(events[te.ref].handler, te.ref);
-
-							lock.lock();
 
 							if (events[te.ref].valid && events[te.ref].period.count() > 0) {
 								// The event is valid and a periodic timer.
 								te.next += events[te.ref].period;
 								time_events.insert(te);
 							}
-							else {
+							else 
+							{
 								// The event is either no longer valid because it was removed in the
 								// callback, or it is a one-shot timer.
-								events[te.ref].valid = false;
-								free_ids.push(te.ref);
+								auto e = events.find(te.ref);
+								if (e != events.end())
+								{
+									events.erase(e);
+								}
 							}
+							lock.unlock();
+							threadPool->enqueue(nextTask, nextTaskId);
+							lock.lock();
 						}
 						else {
 							cond.wait_until(lock, te.next);

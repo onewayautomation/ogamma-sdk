@@ -109,13 +109,21 @@ namespace OWA {
        * @param createSession - if true, then creates and activates session as part of connection process.
        * @return OperationResult - result of connection operation.
        */
-      virtual std::future<OperationResult> connect(generalCallback f = std::bind(&Connection::handleConnectDisconnect, std::placeholders::_1));
+      virtual std::shared_future<OperationResult> connect(generalCallback f = std::bind(&Connection::handleConnectDisconnect, std::placeholders::_1));
 			
-			void initializeConnectionActions();
-			
+			/**
+			* Disconnects client connection
+			* If a session was created, then it is closed
+			* @param deleteSubscriptions is used if a session was created.
+			*/
+			virtual std::shared_future<OperationResult> disconnect(bool deleteSubscriptions = true, generalCallback f = std::bind(&Connection::handleConnectDisconnect, std::placeholders::_1));
+
 			void setCallbacksFromTransport();
       
       bool isConnected();
+
+			bool isDisconnected();
+
 
       // Indicates that connection process is in progress:
       bool isConnecting();
@@ -197,13 +205,6 @@ namespace OWA {
 				onResponseCallback<SetTriggeringRequest, SetTriggeringResponse> f =
 				std::bind(&Connection::onSetTriggeringResponse, std::placeholders::_1, std::placeholders::_2));
 
-      /**
-      * Disconnects client connection
-      * If a session was created, then it is closed
-      * @param deleteSubscriptions is used if a session was created.
-      */
-      virtual std::future<OperationResult> disconnect(bool deleteSubscriptions = true, generalCallback f = std::bind(&Connection::handleConnectDisconnect, std::placeholders::_1));
-
       /** 
       * Starts to listen to the port defined in the URL. If URL is not defined, then whatever is defined in configuration. 
       * If configuration was not set, then listens to default port - 4840
@@ -276,11 +277,12 @@ namespace OWA {
 			std::string GetName();
 
     protected:
+			void initializeConnectionActions();
 			void addConnectionAction(Action action, bool toTheFront = false);
 			Action getNextConnectionAction(bool removeFromQueue = false);
 			void finishConnectionAttempt(ConnectionState newState, OperationResult result);
-      std::atomic<ConnectionState> state;
-			std::atomic<ConnectionState> desiredState;
+      ConnectionState state;
+			ConnectionState desiredState;
 
       template<typename RequestType, typename ResponseType>
       std::future<std::shared_ptr<ResponseType>> sendRequest(std::shared_ptr<RequestType>& request, onResponseCallback<RequestType, ResponseType> f);
@@ -309,7 +311,6 @@ namespace OWA {
 			std::future<std::shared_ptr<ResponseType>> processFailedRequest(
 				std::shared_ptr<ClientContext>& context, std::shared_ptr<RequestType>& request, std::shared_ptr<ResponseType>& response, StatusCode serviceResult);
 
-			void saveTimer(timer_id id);
 			void onTimerCalled(timer_id id);
 			void cancelTimers();
 
@@ -335,12 +336,12 @@ namespace OWA {
 
       std::mutex mutextRequestInit;
 
-      std::mutex mutextRequestQueue;
+      std::recursive_mutex mutextRequestQueue;
       ByteString clientNonce;
       std::deque <Action> connectionActions;
 
 
-			std::mutex mutexPublishing;
+			std::recursive_mutex mutexPublishing;
 			std::map < uint32_t, NotificationObserver> notificaltionCallbacks;
 			std::map < CreateSubscriptionRequest*, NotificationObserver> pendingNotificaltionCallbacks;
 			std::atomic<uint32_t> numberOfPendingPublishRequests;
@@ -365,11 +366,14 @@ namespace OWA {
 
 			std::map <uint32_t, CreateMonitoredItemsRequest::Ptr> mapSubIdToCreateItemsRequest;
 
-			std::mutex mutexTimers;
-			std::set<timer_id> timers;
-			std::set<timer_id> orphanTimers;
+			std::recursive_mutex mutexTimers;
+
+			// Store timer's Id and due time.
+			std::map<timer_id, std::chrono::time_point<std::chrono::steady_clock>> timers;
 
 			StateChangeCallback stateChangeCallback;
+
+			void scheduleStateChangeCallback(const std::string& endpointUrl, ConnectionState newState, const OperationResult& result);
     };
 
     // Implementation of the send (called from "send" method):
@@ -399,6 +403,10 @@ namespace OWA {
 					}
 				}
       }
+			else
+			{
+				throw "Failed to add request into the queue";
+			}
 			if (sentOk) {
 				return promise->get_future();
 			}

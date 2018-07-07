@@ -8,12 +8,10 @@
 namespace OWA {
   namespace OpcUa {
     struct GetEndpointsRequest {
-      GetEndpointsRequest(std::string endpointUrl) {
-        this->endpointUrl = endpointUrl;
-      }
-      static RequestResponseTypeId getTypeId() {
-        return RequestResponseTypeId::GetEndpointsRequest;
-      }
+			GetEndpointsRequest(std::string endpointUrl);
+			~GetEndpointsRequest();
+
+			static RequestResponseTypeId getTypeId();
       RequestHeader header;
 			boost::any		context;
 

@@ -51,7 +51,7 @@ namespace OWA {
       void setStringIdentifier(const std::string& id, uint16_t namespaceIndex = 0);
       void setGuidIdentifier(const Guid& id, uint16_t namespaceIndex = 0);
       void setOpaqueIdentifier(const ByteString& id, uint16_t namespaceIndex = 0);
-			std::string toString() const;
+			std::string toString(bool skipNamespaceIndex = false) const;
 			
 			bool parse(const std::string& valueAsString);
     

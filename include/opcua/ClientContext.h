@@ -44,6 +44,7 @@ namespace OWA {
 			void* promise;
 			void* callbackFunction;
 			void* request;
+			std::shared_ptr<std::shared_future<OperationResult>> sharedFuture; // Required only for connect and disconnect requests
 			std::chrono::time_point<std::chrono::system_clock> expireTime;
 		};
 	}

@@ -56,7 +56,7 @@ namespace OWA {
 
     struct ClientConfiguration {
       ClientConfiguration();
-			ClientConfiguration(const std::string& endpointUrl);
+			ClientConfiguration(const std::string& endpointUrl, bool createSession = false);
 
       std::string getDiscoveryUrl(const std::string& protocol = Protocol::tcp);
       ApplicationDescription applicationDescription;

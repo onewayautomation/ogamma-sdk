@@ -32,7 +32,9 @@ namespace OWA {
       void sgetn(uint8_t* m, uint32_t count) {
 				if ((position + count) > buffer.size())
 				{
-					throw std::exception("Decoding error");
+					std::stringstream stream;
+					stream << "Decoding error. Buffer with length " << buffer.size() << " is being accessed from position " << position << " to " << (position + count);
+					throw OperationResult(StatusCode::BadDecodingError, stream.str());
 				}
         memcpy(m, buffer.data() + position, count);
         position += count;

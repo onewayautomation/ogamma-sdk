@@ -4,15 +4,11 @@
 namespace OWA {
   namespace OpcUa {
     struct OpenSecureChannelRequest {
-      OpenSecureChannelRequest() {
-        requestType = SecurityTokenRequestType::Issue;
-        securityMode = MessageSecurityMode::None;
-        securityPolicyUri = "http://opcfoundation.org/UA/SecurityPolicy#None";
-        requestedLifeTime = 36000000;
-      }
-      static RequestResponseTypeId getTypeId() {
-        return RequestResponseTypeId::OpenSecureChannelRequest;
-      }
+			OpenSecureChannelRequest();
+			~OpenSecureChannelRequest();
+
+			static RequestResponseTypeId getTypeId();
+
       RequestHeader header;
       ByteString  clientCertificate; //Der encoded certificate
       SecurityTokenRequestType requestType;

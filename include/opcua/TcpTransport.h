@@ -132,7 +132,7 @@ namespace OWA {
 
       void start_send_hello();
       void handle_hello(DataBufferPtr buffer, const boost::system::error_code& ec, size_t bytes);
-			void handleChannelClose(DataBufferPtr buffer, const boost::system::error_code& ec, size_t bytes);
+			void handleChannelClose(uint32_t id, DataBufferPtr buffer, const boost::system::error_code& ec, size_t bytes);
 
 
       //void start_open_secure_channel();
@@ -158,7 +158,6 @@ namespace OWA {
       int numberOfAckMessagesReceived;
 
       std::shared_ptr<connectionStateChangeCallback> connectCallback;
-      std::shared_ptr<generalCallback> disconnectCallbak;
       std::shared_ptr<onResponseReceived<OpenSecureChannelResponse>> onOpenSecureChannelResponse;
       std::shared_ptr<onResponseReceived<FindServersResponse>> onFindServersResponse;
       std::shared_ptr<onResponseReceived<GetEndpointsResponse>> onGetEndpointsResponse;
@@ -195,7 +194,7 @@ namespace OWA {
 
       ChannelSecurityToken securityToken;
       std::shared_ptr<SymmetricCryptoContext> symmetricCryptoContext;
-      std::mutex sendMutex;
+      std::recursive_mutex sendMutex;
       ByteString clientNonce;
     };
 
@@ -223,7 +222,7 @@ namespace OWA {
       {
         // Encode and send from within a lock, so only one thread at a time can do that, to make sure
         // that messages are sent in order with sequence numbers.
-        std::lock_guard<std::mutex> lock(sendMutex);
+        std::lock_guard<std::recursive_mutex> lock(sendMutex);
         // Encode it:
         DataBufferPtr message;
         auto context = GetSymmetricCryptoContext(0);
@@ -233,18 +232,19 @@ namespace OWA {
 				try {
 					if (request->getTypeId() == RequestResponseTypeId::CloseSecureChannelRequest) {
 						boost::asio::async_write(*socket_, boost::asio::buffer(message->data(), message->size()),
-							std::bind(&TcpTransport::handleChannelClose, this, message, std::placeholders::_1, std::placeholders::_2));
+							std::bind(&TcpTransport::handleChannelClose, this, request->header.requestHandle, message, std::placeholders::_1, std::placeholders::_2));
 					}
 					else {
 						boost::asio::async_write(*socket_, boost::asio::buffer(message->data(), message->size()),
 							std::bind(&TcpTransport::handle_hello, this, message, std::placeholders::_1, std::placeholders::_2));
 					}
 				}
-				catch (std::exception ex) {
-					throw OperationResult(StatusCode::BadCommunicationError, ex.what());
+				catch (const OperationResult& or )
+				{
+					throw or ;
 				}
-				catch (...) {
-					throw OperationResult(StatusCode::BadCommunicationError, "Failed to send message asynchronously");
+				catch (const std::exception& ex) {
+					throw OperationResult(StatusCode::BadCommunicationError, ex.what());
 				}
       }
     }

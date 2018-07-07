@@ -16,7 +16,7 @@
 namespace OWA {
 	namespace OpcUa {
 		class Timer;
-		class EndpointDescription;
+		struct EndpointDescription;
 
 		namespace Utils
 		{
@@ -37,6 +37,11 @@ namespace OWA {
 				return isGood(*response);
 			}			
 			
+			inline bool isGood(uint32_t code)
+			{
+				return isGood((StatusCode)code);
+			}
+
 			std::vector<ApplicationDescription> selectServers(std::vector<ApplicationDescription>& applications);
 
 			inline std::string toString(StatusCode code) {
@@ -49,6 +54,8 @@ namespace OWA {
 
 			void initThreadPool(int numberOfThreads = 1);
 			void closeThreadPool();
+			// Returns time given ms from now.
+			std::chrono::time_point<std::chrono::steady_clock> getTimeNowPlusMilliSeconds(uint32_t ms);
 			std::shared_ptr<ThreadPool> getThreadPool();
 			
 			void initCallbackThreadPool(int numberOfThreads = 1);
@@ -59,12 +66,14 @@ namespace OWA {
 			std::shared_ptr<boost::asio::io_service> claimIoService();
 			void releaseIoService(std::shared_ptr<boost::asio::io_service>& service);
 
+			void closeSdk();
+
 			std::string toString(OpcUa::SecurityMode mode, const std::string& locale = "en");
 			std::string toString(OpcUa::MessageSecurityMode mode, const std::string& locale = "en");
 			std::string toString(const OpcUa::EndpointDescription& ed);
 			std::string toString(const OpcUa::UserIdentityTokenType uitt);
 			std::string toString(const OpcUa::ConnectionState state, const std::string& locale = "en");
-
+			
 			std::string currentTimestamp();
 			std::string toLower(const std::string& str);
 			bool startsWith(const std::string& str, const std::string& subs);

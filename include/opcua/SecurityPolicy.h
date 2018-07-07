@@ -38,6 +38,7 @@ namespace OWA {
       std::shared_ptr<Botan::BlockCipher> getSymmetricCryptor();
       std::shared_ptr<Botan::PK_Signer> getAsymmetricSigner();
       std::shared_ptr<Botan::PK_Verifier> getAsymmetricVerifier();
+			int getMaximumInputSize();
       std::shared_ptr<Botan::PK_Encryptor> getAsymmetricEncryptor();
       std::shared_ptr<Botan::PK_Decryptor> getAsymmetricDecryptor(); 
       std::shared_ptr<Botan::RandomNumberGenerator> getRandomNumberGenerator();
@@ -79,9 +80,8 @@ namespace OWA {
 
       // Certificate of the other, remote side (in case of OPC UA Client application it is certificate of UA Server to which we are connecting to).
       X509Certificate hisCerticate;
+		public: //TODO
       static std::map<std::string, SecurityPolicyId> mapUriToId;
-      static std::map<std::string, SecurityPolicyId> initMapUriToId();
-
     };
   }
 }
