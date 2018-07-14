@@ -56,7 +56,7 @@ namespace OWA {
 			static std::shared_ptr<Connection> create(StateChangeCallback& stateChangeCallback);
       ~Connection();
 
-			
+			std::weak_ptr<Connection> getWeakReference ();
 
     protected:
       Connection(StateChangeCallback& stateChangeCallback);
@@ -116,7 +116,7 @@ namespace OWA {
 			* If a session was created, then it is closed
 			* @param deleteSubscriptions is used if a session was created.
 			*/
-			virtual std::shared_future<OperationResult> disconnect(bool deleteSubscriptions = true, generalCallback f = std::bind(&Connection::handleConnectDisconnect, std::placeholders::_1));
+			virtual std::shared_future<OperationResult> disconnect(bool reconnect, bool deleteSubscriptions = true, generalCallback f = std::bind(&Connection::handleConnectDisconnect, std::placeholders::_1));
 
 			void setCallbacksFromTransport();
       
@@ -280,7 +280,8 @@ namespace OWA {
 			void initializeConnectionActions();
 			void addConnectionAction(Action action, bool toTheFront = false);
 			Action getNextConnectionAction(bool removeFromQueue = false);
-			void finishConnectionAttempt(ConnectionState newState, OperationResult result);
+			void finishConnectionAttempt(ConnectionState newState, OperationResult result, bool needToScheduleReconnect);
+			void scheduleReconnect();
       ConnectionState state;
 			ConnectionState desiredState;
 
@@ -322,9 +323,6 @@ namespace OWA {
       ClientConfiguration clientConfiguration;
       std::function<std::string()> passwordCallback;
       X509Certificate serverCertificate;
-      bool initialized;
-      bool needToGetEndpoints;
-      bool needToFindServer;
       SecurityMode activeSecurityMode;
       std::string activeEndpointUrl;
 
@@ -339,7 +337,6 @@ namespace OWA {
       std::recursive_mutex mutextRequestQueue;
       ByteString clientNonce;
       std::deque <Action> connectionActions;
-
 
 			std::recursive_mutex mutexPublishing;
 			std::map < uint32_t, NotificationObserver> notificaltionCallbacks;
@@ -366,14 +363,15 @@ namespace OWA {
 
 			std::map <uint32_t, CreateMonitoredItemsRequest::Ptr> mapSubIdToCreateItemsRequest;
 
-			std::recursive_mutex mutexTimers;
-
 			// Store timer's Id and due time.
 			std::map<timer_id, std::chrono::time_point<std::chrono::steady_clock>> timers;
 
 			StateChangeCallback stateChangeCallback;
 
 			void scheduleStateChangeCallback(const std::string& endpointUrl, ConnectionState newState, const OperationResult& result);
+
+			ConnectionState stateOfSecureChannel;
+			ConnectionState stateOfSession;
     };
 
     // Implementation of the send (called from "send" method):

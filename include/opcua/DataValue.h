@@ -11,9 +11,9 @@ namespace OWA {
 			Variant value;
 			StatusCode statusCode;
 			DateTime sourceTimestamp;
-			uint32_t sourcePicoSeconds;
+			uint16_t sourcePicoSeconds;
 			DateTime serverTimestamp;
-			uint32_t serverPicoSeconds;
+			uint16_t serverPicoSeconds;
 		};
 	}
 }

@@ -2,6 +2,7 @@
 #include "opcua/CertificateSettings.h"
 #include "opcua/ApplicationDescription.h"
 #include "opcua/GetEndpoints.h"
+#include "opcua/UserIdentityToken.h"
 
 namespace OWA {
   namespace OpcUa {
@@ -24,7 +25,7 @@ namespace OWA {
       std::string applicationUri;
       std::string applicationName;
       std::vector<std::string> discoveryUrls; // Returned by FindServers call. Used to call GetEndpoints.
-      std::string localDiscoveryServerUrl; // Used to call FindServers on local discovery server.
+      std::string localDiscoveryServerUrl; // Used to call FindServers on Local Discovery Server. If empty, the discoveryUrls is used.
     };
 	  
     struct ConnectionSettings {
@@ -32,6 +33,17 @@ namespace OWA {
 
       bool autoConnect;
       bool autoReconnect;
+
+			// When unexpected disconnections occurs, waits for this delay before starting first reconnection attempt.
+			int delayBeforeReconnect;
+
+			// Interval between  consequential reconnection attempts.
+			uint32_t reconnectInterval;
+
+			// Interval to read server state (connection watchdog).
+			uint32_t readServerStateInterval;
+			
+			uint32_t timeoutReadServerState;
 
 			// Timeouts for various kinds of requests
 			uint32_t timeoutConnection;
@@ -58,7 +70,10 @@ namespace OWA {
       ClientConfiguration();
 			ClientConfiguration(const std::string& endpointUrl, bool createSession = false);
 
-      std::string getDiscoveryUrl(const std::string& protocol = Protocol::tcp);
+      std::string getDiscoveryUrl(RequestResponseTypeId forRequestType, const std::string& protocol = Protocol::tcp);
+
+			std::string getName();
+
       ApplicationDescription applicationDescription;
       CertificateSettings certificateSettings;
       SecurityMode securityMode; // If set to invalid, then highest level secured connection mode is used.
@@ -68,8 +83,16 @@ namespace OWA {
       uint32_t maxResponseMessageSize;
 
       bool createSession; // If true, a session will be created and activated on server. Otherwise, just secure channel is opened.
+
+			// Session name, which is passed in the createSession call to the server.
       std::string sessionName;
+
+			// Name of the configuration. It can be used in GUI applications to identify the connection.
+			std::string name;
+
 			std::vector<std::string> localeIds;
+
+			std::shared_ptr<UserIdentityToken> identityToken;
 		private:
 			void init();
     };

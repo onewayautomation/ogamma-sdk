@@ -25,7 +25,7 @@ namespace OWA {
     public:
       TcpTransport(std::shared_ptr<Codec> codec, std::shared_ptr<Cryptor> cryptor);
       virtual ~TcpTransport();
-      
+			void setSelfRef(std::weak_ptr<TcpTransport>& ref);
       void setCallback(std::shared_ptr<connectionStateChangeCallback>& f) { connectCallback = f; }
       void setCallback(std::shared_ptr<onResponseReceived<FindServersResponse>>& f) { onFindServersResponse = f; }
       void setCallback(std::shared_ptr<onResponseReceived<OpenSecureChannelResponse>>& f) { onOpenSecureChannelResponse = f; }
@@ -101,7 +101,7 @@ namespace OWA {
 	    */
       void connect(const std::string& endpointUrl, uint32_t timeoutInMilliseconds = 5000);
 	    
-      virtual void disconnect();
+      virtual void disconnect(bool doCallBack = true);
       virtual void listen(const boost::any& context, const std::string& url);
       virtual void stopListen(const boost::any& context);
 
@@ -128,6 +128,7 @@ namespace OWA {
       void handle_read_message_body(std::pair<std::shared_ptr<OWA::OpcUa::MessageHeader>, DataBufferPtr> readContext,
         const boost::system::error_code& ec, size_t bytes);
 
+			bool isOk(const boost::system::error_code& ec, size_t bytes);
       void stop();
 
       void start_send_hello();
@@ -196,33 +197,23 @@ namespace OWA {
       std::shared_ptr<SymmetricCryptoContext> symmetricCryptoContext;
       std::recursive_mutex sendMutex;
       ByteString clientNonce;
+
+			std::weak_ptr<TcpTransport> selfRef;
     };
 
     template<typename RequestType>
     void OWA::OpcUa::TcpTransport::sendRequestImpl(std::shared_ptr<RequestType>& request)
     {
-      if (request.get() == 0) { //TODO - next line will throw exception
-        switch (request->getTypeId()) {
-        case RequestResponseTypeId::OpenSecureChannelRequest:
-          std::shared_ptr<OpenSecureChannelResponse> response(new OpenSecureChannelResponse());
-          response->header.requestHandle = request->header.requestHandle;
-          response->header.serviceResult = StatusCode::BadInternalError;
-          response->header.timestamp = DateTime::now();
-          (*onOpenSecureChannelResponse)(response);
-          break;
-          //TODO
-        }
-        return;
-      }
-			
-			if (stopped_ || socket_.get() == 0) {
-				throw OperationResult(StatusCode::BadDisconnect, "Transport layer is disconnected");
+			std::lock_guard<std::recursive_mutex> lock(sendMutex);
+			if (stopped_ || !socket_ || state != Connected ) 
+			{
+				throw OperationResult(StatusCode::BadDisconnect, "Transport layer is not connected");
 			}
 
       {
         // Encode and send from within a lock, so only one thread at a time can do that, to make sure
         // that messages are sent in order with sequence numbers.
-        std::lock_guard<std::recursive_mutex> lock(sendMutex);
+        
         // Encode it:
         DataBufferPtr message;
         auto context = GetSymmetricCryptoContext(0);
@@ -230,13 +221,28 @@ namespace OWA {
 
         // Start an asynchronous operation to send it:
 				try {
-					if (request->getTypeId() == RequestResponseTypeId::CloseSecureChannelRequest) {
-						boost::asio::async_write(*socket_, boost::asio::buffer(message->data(), message->size()),
-							std::bind(&TcpTransport::handleChannelClose, this, request->header.requestHandle, message, std::placeholders::_1, std::placeholders::_2));
+					if (request->getTypeId() == RequestResponseTypeId::CloseSecureChannelRequest) 
+					{
+						std::weak_ptr<TcpTransport> wp = selfRef;
+						boost::asio::async_write(*socket_, boost::asio::buffer(message->data(), message->size()), [wp, request, message]
+						(const boost::system::error_code& ec, size_t bytes)
+						{
+							if (auto sp = wp.lock())
+							{
+								sp->handleChannelClose(request->header.requestHandle, message, ec, bytes);
+							}
+						});
 					}
-					else {
-						boost::asio::async_write(*socket_, boost::asio::buffer(message->data(), message->size()),
-							std::bind(&TcpTransport::handle_hello, this, message, std::placeholders::_1, std::placeholders::_2));
+					else 
+					{
+						std::weak_ptr<TcpTransport> wp = selfRef;
+						boost::asio::async_write(*socket_, boost::asio::buffer(message->data(), message->size()), [wp, message](const boost::system::error_code& ec, size_t bytes)
+						{
+							if (auto sp = wp.lock())
+							{
+								sp->handle_hello(message, ec, bytes);
+							}
+						});
 					}
 				}
 				catch (const OperationResult& or )

@@ -10,41 +10,16 @@ namespace OWA {
     // where there is no request header so the message cannot be returned using DiagnosticInfo and string table combination
     struct OperationResult {
       OperationResult();
-      OperationResult(StatusCode code) {
-        this->code = code;
-      }
-      OperationResult(StatusCode code, const LocalizedText& text) {
-        this->code = code;
-        this->text = text;
-      }
-	  	OperationResult(StatusCode code, const std::string& text) {
-		  	this->code = code;
-		  	this->text = text;
-	  	}
-			OperationResult(StatusCode code, const char* text) {
-				this->code = code;
-				this->text = text;
-			}
-      OperationResult(const OperationResult& other) {
-        *this = other;
-      }
-      OperationResult& operator=(const OperationResult& other) {
-        if (this != &other)
-        {
-          this->code = other.code;
-          this->text = other.text;
-        }
-        return *this;
-      }
-      bool operator==(const OperationResult& other) {
-        return this->code == other.code && this->text == other.text;
-      }
-      bool isGood() const {
-        if ( (((uint32_t) code) & 0x80000000) == 0) {
-          return true;
-        }
-        return false;
-      }
+			OperationResult(StatusCode code);
+			OperationResult(StatusCode code, const LocalizedText& text);
+			OperationResult(StatusCode code, const std::string& text);
+			OperationResult(StatusCode code, const char* text);
+			OperationResult(const OperationResult& other);
+			OperationResult& operator=(const OperationResult& other);
+			bool operator==(const OperationResult& other);
+			bool isGood() const;
+
+			std::string toString() const;
       StatusCode code;
       LocalizedText text;
     };

@@ -27,7 +27,7 @@
 
 namespace OWA {
   namespace OpcUa{
-    class Transport : public OpcUa::Configurable {
+    class Transport  {
     public:
       virtual ~Transport() {};
 
@@ -107,7 +107,7 @@ namespace OWA {
       virtual void sendRequest(std::shared_ptr<CallRequest>& request) = 0;
 
 	    virtual void connect(const std::string& endpointUrl, uint32_t timeoutInMilliseconds = 5000) = 0;
-      virtual void disconnect() = 0;
+      virtual void disconnect(bool doCallBack = true) = 0;
 
       virtual void listen(const boost::any& context, const std::string& url) = 0;
       virtual void stopListen(const boost::any& context) = 0;
