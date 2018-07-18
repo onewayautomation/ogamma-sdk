@@ -26,6 +26,7 @@ namespace OWA {
       TcpTransport(std::shared_ptr<Codec> codec, std::shared_ptr<Cryptor> cryptor);
       virtual ~TcpTransport();
 			void setSelfRef(std::weak_ptr<TcpTransport>& ref);
+			std::weak_ptr<Transport> getSelfRef();
       void setCallback(std::shared_ptr<connectionStateChangeCallback>& f) { connectCallback = f; }
       void setCallback(std::shared_ptr<onResponseReceived<FindServersResponse>>& f) { onFindServersResponse = f; }
       void setCallback(std::shared_ptr<onResponseReceived<OpenSecureChannelResponse>>& f) { onOpenSecureChannelResponse = f; }
@@ -229,7 +230,8 @@ namespace OWA {
 						{
 							if (auto sp = wp.lock())
 							{
-								sp->handleChannelClose(request->header.requestHandle, message, ec, bytes);
+								// No response comes from the server for this request, so requestId needs to be passed to the callback:
+								sp->handleChannelClose(request->header.requestId, message, ec, bytes);
 							}
 						});
 					}

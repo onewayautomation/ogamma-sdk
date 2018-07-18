@@ -113,9 +113,9 @@ namespace OWA{
         HelloMessage(const std::string& url) {
           EndpointUrl = url;
           ProtocolVersion = 0;
-          ReceiveBufferSize = 0xFFFFFF; 
-          SendBufferSize = 0xFFFFFF; 
-          MaxMessageSize = 0; // no limit. Must be minimum 8196 bytes.
+					ReceiveBufferSize = 16777216;
+          SendBufferSize = 16777216;
+          MaxMessageSize = 16777216; // no limit. Must be minimum 8196 bytes.
           MaxChunkCount = 1; 
         }
         uint32_t ProtocolVersion;

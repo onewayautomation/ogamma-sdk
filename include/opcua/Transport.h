@@ -111,6 +111,8 @@ namespace OWA {
 
       virtual void listen(const boost::any& context, const std::string& url) = 0;
       virtual void stopListen(const boost::any& context) = 0;
+
+			virtual std::weak_ptr<Transport> getSelfRef() = 0;
     };
   }
 }

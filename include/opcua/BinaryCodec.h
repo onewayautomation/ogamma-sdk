@@ -259,10 +259,12 @@ namespace OWA {
           sequenceHeaderPosition = buffer->size();
 
           // 4. Serialize SequenceHeader:
-          SequenceHeader sequenceHeader(value.header.requestHandle, sequenceNumber);
-          sequenceNumber++;
-          encode(buffer, sequenceHeader.RequestId);
-          encode(buffer, sequenceHeader.SequenceNumber);
+					sequenceNumber++;
+					if (sequenceNumber > 4294966271) {
+						sequenceNumber = 0; //Must be less than 1024
+					}
+					encode(buffer, sequenceNumber);
+          encode(buffer, value.header.getRequestId());
 
           // 5. Serialize body with request:
           // First, serialize type id for this request:

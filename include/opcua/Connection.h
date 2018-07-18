@@ -253,9 +253,9 @@ namespace OWA {
       template<typename RequestType, typename ResponseType>
       bool onResponseReceivedCallback(std::shared_ptr<ResponseType>& response) {
         std::shared_ptr<ClientContext> context;
-        if (getRequestContext(response->header.requestHandle, context, true)) {
+        if (getRequestContext(response->header.requestId, context, true)) {
           if (context->type != RequestType::getTypeId()) {
-            // TODO - handle this error case
+						throw "Response type does not match with request type!"; // TODO - handle this error case
           }
 					std::promise<std::shared_ptr<ResponseType>>* promise = static_cast<std::promise<std::shared_ptr<ResponseType>>*>(context->promise);
 					onResponseCallback<RequestType, ResponseType>* callback = static_cast<onResponseCallback<RequestType, ResponseType>*>(context->callbackFunction);
@@ -263,9 +263,17 @@ namespace OWA {
 
 					if (callback != 0 && pointerToRequest != 0) {
 						Utils::getCallbackThreadPool()->enqueue(std::bind(*callback, *pointerToRequest, response));
+						// TODO (*callback)(*pointerToRequest, response);
 					}
 					if (promise != 0) {
-						promise->set_value(response);
+						try
+						{
+							promise->set_value(response);
+						}
+						catch (const std::future_error&)
+						{
+							std::cout << "promise->set_value failed!" << std::endl;
+						}
 					}
         }
         else {
@@ -302,6 +310,7 @@ namespace OWA {
       * If request Id is not 0, then it is removed from the map. Otherwise it needs to be removed by special method - removeConnectContext();
       */
       bool getRequestContext(RequestId id, std::shared_ptr<ClientContext>& cw, bool deleteFromMap = true);
+			bool removeRequestContext(RequestId id);
       bool removeConnectContext(ConnectionState newState);
       int32_t getNumberOfPendingRequests();
 			void callPublishRequestsAfterCreateSubscriptioin();
@@ -311,6 +320,9 @@ namespace OWA {
 			template<typename RequestType, typename ResponseType>
 			std::future<std::shared_ptr<ResponseType>> processFailedRequest(
 				std::shared_ptr<ClientContext>& context, std::shared_ptr<RequestType>& request, std::shared_ptr<ResponseType>& response, StatusCode serviceResult);
+
+			template<typename RequestType>
+			bool addToRequestQueue(std::shared_ptr<RequestType>& request);
 
 			void onTimerCalled(timer_id id);
 			void cancelTimers();
@@ -326,7 +338,7 @@ namespace OWA {
       SecurityMode activeSecurityMode;
       std::string activeEndpointUrl;
 
-      uint32_t	requestHandle;
+      uint32_t	requestId;
 			uint32_t	monitoredItemClientHandle;
 			uint32_t  subscriptionClientHandle;
 
@@ -384,19 +396,27 @@ namespace OWA {
       onResponseCallback<RequestType, ResponseType>* callback = new onResponseCallback<RequestType, ResponseType>(f);
 
 			initializeRequestHeader(request->getTypeId(), request->header);
-			std::shared_ptr<ClientContext> context(new ClientContext(request->header.requestHandle, request->getTypeId(), promise, callback, new std::shared_ptr<RequestType>(request)));
+			std::shared_ptr<ClientContext> context(new ClientContext(request->header.requestId, request->getTypeId(), promise, callback, new std::shared_ptr<RequestType>(request)));
 			context->setTimeout(request->header.timeoutHint);
 			bool sentOk = false;
-      if (addRequestContext(request->header.requestHandle, context))
+      if (addRequestContext(request->header.requestId, context))
       {
 				try {
-					transport->sendRequest(request);
-					sentOk = true;
+					if (transport)
+					{
+						transport->sendRequest(request);
+						sentOk = true;
+					}
+					else
+					{
+						throw OperationResult(StatusCode::BadInvalidState, "Attempt to send on deleted transport");
+					}
 				}
 				catch (OperationResult or1) {
 					std::shared_ptr<ResponseType> response;
 					std::shared_ptr<ClientContext> c;
-					if (getRequestContext(request->header.requestHandle, c, true)) {
+					// Remove it from the queue and respond:
+					if (getRequestContext(request->header.requestId, c, true)) {
 						return processFailedRequest(c, request, response, or1.code);
 					}
 				}
@@ -426,6 +446,7 @@ namespace OWA {
 				response.reset(new ResponseType());
 			}
 			response->header.requestHandle = request->header.requestHandle;
+			response->header.requestId = request->header.requestId;
 			response->header.serviceResult = serviceResult;
 			response->header.timestamp = DateTime::now();
 			std::promise<std::shared_ptr<ResponseType>>* promise = static_cast<std::promise<std::shared_ptr<ResponseType>>*>(context->promise);
@@ -434,7 +455,8 @@ namespace OWA {
 
 			// Schedule:
 			if (callback != 0) {
-				Utils::getCallbackThreadPool()->enqueue(*callback, *pointerToRequest, response);
+				// Utils::getCallbackThreadPool()->enqueue(*callback, *pointerToRequest, response);
+				(*callback)(*pointerToRequest, response);
 			}
 			// Set result in the original future:
 			if (promise != 0) {
@@ -447,6 +469,15 @@ namespace OWA {
 			pr.set_value(response);
 			return pr.get_future();
 			//return promise->get_future();
+		}
+
+		template<typename RequestType>
+		bool OWA::OpcUa::Connection::addToRequestQueue(std::shared_ptr<RequestType>& request)
+		{
+			std::shared_ptr<ClientContext> context(
+				new ClientContext(request->header.requestId, request->getTypeId(), (void*)0, (void*)0, new std::shared_ptr<RequestType>(request)));
+			context->setTimeout(request->header.timeoutHint);
+			return addRequestContext(request->header.requestId, context);
 		}
   }
 }
