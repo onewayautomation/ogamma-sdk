@@ -118,6 +118,10 @@ namespace OWA {
 			*/
 			virtual std::shared_future<OperationResult> disconnect(bool reconnect, bool deleteSubscriptions = true, generalCallback f = std::bind(&Connection::handleConnectDisconnect, std::placeholders::_1));
 
+			/* After this call the Connection object does not call any callback functions, so objects using it can be safely deleted.
+			*/
+			void shutdown();
+
 			void setCallbacksFromTransport();
       
       bool isConnected();
@@ -261,9 +265,21 @@ namespace OWA {
 					onResponseCallback<RequestType, ResponseType>* callback = static_cast<onResponseCallback<RequestType, ResponseType>*>(context->callbackFunction);
 					std::shared_ptr<RequestType>* pointerToRequest = static_cast<std::shared_ptr<RequestType>*>(context->request);
 
-					if (callback != 0 && pointerToRequest != 0) {
-						Utils::getCallbackThreadPool()->enqueue(std::bind(*callback, *pointerToRequest, response));
-						// TODO (*callback)(*pointerToRequest, response);
+					if (callback != 0 && pointerToRequest != 0)
+					{
+						std::shared_ptr<Connection> sp = this->selfReference.lock();
+						if (sp)
+						{
+							onResponseCallback<RequestType, ResponseType> cb = *callback;
+							std::shared_ptr<RequestType> request = *pointerToRequest;
+							Utils::getCallbackThreadPool()->enqueue([sp, cb, request, response]() mutable
+							{
+								if (!sp->isShutDown)
+								{
+									cb(request, response);
+								}
+							});
+						}
 					}
 					if (promise != 0) {
 						try
@@ -384,6 +400,7 @@ namespace OWA {
 
 			ConnectionState stateOfSecureChannel;
 			ConnectionState stateOfSession;
+			std::atomic<bool> isShutDown;
     };
 
     // Implementation of the send (called from "send" method):
@@ -453,10 +470,22 @@ namespace OWA {
 			onResponseCallback<RequestType, ResponseType>* callback = static_cast<onResponseCallback<RequestType, ResponseType>*> (context->callbackFunction);
 			std::shared_ptr<RequestType>* pointerToRequest = static_cast<std::shared_ptr<RequestType>*>(context->request);
 
-			// Schedule:
+			// Schedule callback:
+			
 			if (callback != 0) {
-				// Utils::getCallbackThreadPool()->enqueue(*callback, *pointerToRequest, response);
-				(*callback)(*pointerToRequest, response);
+				// Capture of strong ptr to Connection will make sure that it is not deleted until all callbacks are done:
+				std::shared_ptr<Connection> sp = this->selfReference.lock();
+				if (sp)
+				{
+					onResponseCallback<RequestType, ResponseType> cb = *callback;
+					Utils::getCallbackThreadPool()->enqueue([sp, cb, request, response]() mutable
+					{
+						if (!sp->isShutDown)
+						{
+							cb(request, response);
+						}
+					});
+				}
 			}
 			// Set result in the original future:
 			if (promise != 0) {
