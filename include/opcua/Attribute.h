@@ -6,6 +6,7 @@
 #include "opcua/DataValue.h"
 #include "opcua/Utils.h"
 #include <boost/any.hpp>
+#include "opcua/History.h"
 
 namespace OWA {
   namespace OpcUa {
@@ -77,17 +78,44 @@ namespace OWA {
     struct WriteResponse {
       ResponseHeader header;
     };
+
+	struct HistoryReadValueId
+	{
+		HistoryReadValueId();
+		HistoryReadValueId(const NodeId& nodeId);
+		NodeId				nodeId;
+		NumericRange	indexRange;
+		QualifiedName	dataEncoding;
+		ByteString		continuationPoint;
+	};
     struct HistoryReadRequest{
+			HistoryReadRequest();
+			
       static RequestResponseTypeId getTypeId() {
         return RequestResponseTypeId::HistoryReadRequest;
       }
       RequestHeader header;
 			boost::any		context;
+			ExtensionObject::Ptr historyReadDetails;
+			TimestampsToReturn timestampsToReturn;
+			bool releaseContinuationPoints;
+			std::vector<HistoryReadValueId> nodesToRead;
 
 			typedef std::shared_ptr <HistoryReadRequest> Ptr;
     };
-    struct HistoryReadResponse {
+
+		struct HistoryReadResult
+		{
+			HistoryReadResult();
+
+			StatusCode statusCode;
+			ByteString continuationPoint;
+			ExtensionObject::Ptr historyData;
+		};
+		struct HistoryReadResponse {
       ResponseHeader header;
+			std::vector<HistoryReadResult> results;
+			std::vector<DiagnosticInfo> diagnosticInfos;
 
 			typedef std::shared_ptr<HistoryReadResponse> Ptr;
     };

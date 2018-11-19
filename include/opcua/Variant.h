@@ -227,6 +227,14 @@ namespace OWA {
 			void clear();
 			std::string toString() const;
 
+			operator float() const;
+
+			struct ConversionException 
+			{
+				ConversionException(const std::string& textMessage);
+				std::string text;
+			};
+
 		private: 
 			void init();
 		};

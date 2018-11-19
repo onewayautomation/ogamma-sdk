@@ -91,7 +91,7 @@ namespace OWA {
       HistoryUpdateResponse = 703,
 
       CallRequest = 712,
-      CallRepsonse = 715, 
+      CallResponse = 715, 
 
       CreateMonitoredItemsRequest = 751,
       CreateMonitoredItemsResponse = 754,

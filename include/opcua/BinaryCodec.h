@@ -4,6 +4,8 @@
 #include "opcua/MessageHeader.h"
 #include "opcua/Variant.h"
 #include "opcua/DataChangeNotification.h"
+#include "opcua/History.h"
+#include "opcua/Call.h"
 
 namespace OWA {
   namespace OpcUa {
@@ -83,6 +85,8 @@ namespace OWA {
         virtual void encode(DataBufferPtr& buffer, HistoryReadResponse& value, std::shared_ptr<SymmetricCryptoContext>& context);
         virtual void decode(DataBufferPtr& buffer, std::shared_ptr<HistoryReadRequest>& value);
         virtual void decode(DataBufferPtr& buffer, std::shared_ptr<HistoryReadResponse>& value);
+				virtual void decode(DataBufferPtr& buffer, HistoryReadResult& value);
+				virtual void decode(DataBufferPtr& buffer, HistoryData& value);
 
         virtual void encode(DataBufferPtr& buffer, HistoryUpdateRequest& value, std::shared_ptr<SymmetricCryptoContext>& context);
         virtual void encode(DataBufferPtr& buffer, HistoryUpdateResponse& value, std::shared_ptr<SymmetricCryptoContext>& context);
@@ -153,6 +157,9 @@ namespace OWA {
         virtual void encode(DataBufferPtr& buffer, CallResponse& value, std::shared_ptr<SymmetricCryptoContext>& context);
         virtual void decode(DataBufferPtr& buffer, std::shared_ptr<CallRequest>& value);
         virtual void decode(DataBufferPtr& buffer, std::shared_ptr<CallResponse>& value);
+				
+				virtual void encode(DataBufferPtr& buffer, const CallMethodRequest& value);
+				virtual void decode(DataBufferPtr& buffer, CallMethodResult& value);
 
       protected:
         void encode(DataBufferPtr& buffer, const uint8_t& value);
@@ -175,7 +182,8 @@ namespace OWA {
         void encode(DataBufferPtr& buffer, const int64_t& value);
         void encode(DataBufferPtr& buffer, const uint64_t& value);
         void encode(DataBufferPtr& buffer, const LocalizedText& value);
-        template<typename Type>
+        
+				template<typename Type>
         void encode(DataBufferPtr& buffer, const std::vector<Type>& value) {
           if (value.empty()) {
             encode(buffer, (int32_t)-1);
@@ -194,9 +202,14 @@ namespace OWA {
         void encode(DataBufferPtr& buffer, const AnonymousIdentityToken& value);
 				void encode(DataBufferPtr& buffer, TimestampsToReturn value);
 				void encode(DataBufferPtr& buffer, const ReadValueId& value);
+				void encode(DataBufferPtr& buffer, const HistoryReadValueId& value);
+				void encode(DataBufferPtr& buffer, const ReadProcessedDetails& value);
+				void encode(DataBufferPtr& buffer, const ReadRawModifiedDetails& value);
+				void encode(DataBufferPtr& buffer, const AggregateConfiguration& value);
 				void encode(DataBufferPtr& buffer, const QualifiedName& value);
 				void encode(DataBufferPtr& buffer, const ViewDescription& value);
 				void encode(DataBufferPtr& buffer, const BrowseDescription& value);
+				void encode(DataBufferPtr& buffer, const Variant& value);
 				void encode(DataBufferPtr& buffer, bool value);
 				void encode(DataBufferPtr& buffer, const MonitoredItemCreateRequest& value);
 				void encode(DataBufferPtr& buffer, const MonitoringParameters& value);

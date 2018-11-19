@@ -5,6 +5,7 @@
 #include "opcua/Guid.h"
 #include "opcua/ByteString.h"
 #include "opcua/NumericNodeId.h"
+#include "opcua/ObjectIds.h"
 
 namespace OWA {
   namespace OpcUa {
@@ -24,7 +25,9 @@ namespace OWA {
       NodeId();
 			NodeId(const NodeId& other);
       NodeId(uint32_t id, uint16_t namespaceIndex = 0);
+			NodeId(ObjectId id, uint16_t namespaceIndex = 0);
       NodeId(const std::string& id, uint16_t namespaceIndex = 0);
+			NodeId(const char* id, uint16_t namespaceIndex = 0);
       NodeId(const Guid& id, uint16_t namespaceIndex = 0);
       NodeId(const ByteString& id, uint16_t namespaceIndex = 0);
 			NodeId(Ids::NumericNodeId standardNumericNodeId);

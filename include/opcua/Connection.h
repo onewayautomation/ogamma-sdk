@@ -15,6 +15,7 @@
 #include "opcua/DataChangeNotification.h"
 #include "opcua/ClientContext.h"
 #include "opcua/Browse.h"
+#include "opcua/Attribute.h"
 
 #include <functional>
 #include <future>
@@ -73,7 +74,10 @@ namespace OWA {
 			
 			static bool onReadResponse(std::shared_ptr<ReadRequest>&, std::shared_ptr<ReadResponse>&);
 			static bool onWriteResponse(std::shared_ptr<WriteRequest>&, std::shared_ptr<WriteResponse>&) { return true; };
-			
+			static bool onHistoryReadResponse(std::shared_ptr<HistoryReadRequest>&, std::shared_ptr<HistoryReadResponse>&) { return true; };
+
+			static bool onCallResponse(std::shared_ptr<CallRequest>&, std::shared_ptr<CallResponse>&) { return true; };
+
 			static bool onBrowseResponse(std::shared_ptr<BrowseRequest>&, std::shared_ptr<BrowseResponse>&) { return true; }
 			static bool onBrowseNextResponse(std::shared_ptr<BrowseNextRequest>&, std::shared_ptr<BrowseNextResponse>&) { return true; }
 			
@@ -148,9 +152,17 @@ namespace OWA {
 				onResponseCallback<ReadRequest, ReadResponse> f =
 				std::bind(&Connection::onReadResponse, std::placeholders::_1, std::placeholders::_2));
 
+			std::future<std::shared_ptr<HistoryReadResponse>> send(std::shared_ptr<HistoryReadRequest>& request,
+				onResponseCallback<HistoryReadRequest, HistoryReadResponse> f =
+				std::bind(&Connection::onHistoryReadResponse, std::placeholders::_1, std::placeholders::_2));
+
 			std::future<std::shared_ptr<WriteResponse>> send(std::shared_ptr<WriteRequest>& request,
 				onResponseCallback<WriteRequest, WriteResponse> f =
 				std::bind(&Connection::onWriteResponse, std::placeholders::_1, std::placeholders::_2));
+
+			std::future<std::shared_ptr<CallResponse>> send(std::shared_ptr<CallRequest>& request,
+				onResponseCallback<CallRequest, CallResponse> f =
+				std::bind(&Connection::onCallResponse, std::placeholders::_1, std::placeholders::_2));
 
 			std::future<std::shared_ptr<BrowseResponse>> send(std::shared_ptr<BrowseRequest>& request,
 				onResponseCallback<BrowseRequest, BrowseResponse> f =
@@ -238,6 +250,11 @@ namespace OWA {
 
       bool onRead(std::shared_ptr<ReadResponse>& response);
 			bool onWrite(std::shared_ptr<WriteResponse>& response);
+
+			bool onHistoryRead(std::shared_ptr<HistoryReadResponse>& response);
+			bool onHistoryUpdate(std::shared_ptr<HistoryUpdateResponse>& response);
+
+			bool onCall(std::shared_ptr<CallResponse>& response);
 
 			bool onCreateSubscription(std::shared_ptr<CreateSubscriptionResponse>& response);
 			bool onModifySubscription(std::shared_ptr<ModifySubscriptionResponse>& response);
