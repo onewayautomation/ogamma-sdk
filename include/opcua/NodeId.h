@@ -33,6 +33,7 @@ namespace OWA {
 			NodeId(Ids::NumericNodeId standardNumericNodeId);
 			NodeId& operator=(const NodeId& other);
       bool operator==(const NodeId& other) const;
+			bool operator<(const NodeId& other) const;
       virtual ~NodeId();
 
       inline uint16_t getNamespaceIndex() const {

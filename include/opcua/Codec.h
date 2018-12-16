@@ -11,7 +11,7 @@
 #include "opcua/CloseSecureChannel.h"
 
 #include "opcua/ByteString.h"
-#include <memory>
+#include "opcua/EncodedExtensionObject.h"
 #include "opcua/Guid.h"
 #include "opcua/LocalizedText.h"
 #include "opcua/SymmetricCryptoContext.h"
@@ -22,7 +22,7 @@
 #include "opcua/Subscribe.h"
 #include "opcua/Monitor.h"
 #include "opcua/Call.h"
-
+#include <memory>
 namespace OWA {
   namespace OpcUa {
     typedef std::pair<std::shared_ptr<MessageHeader>, DataBufferPtr> TcpBinaryMessage;
@@ -34,7 +34,6 @@ namespace OWA {
       virtual void decode(DataBufferPtr&  buffer, std::shared_ptr<HelloMessage>& result) = 0;
       virtual void decode(DataBufferPtr&  buffer, std::shared_ptr<AchnowledgeMessage>& result) = 0;
       virtual void decode(DataBufferPtr&  buffer, std::shared_ptr<ErrorMessage>& result) = 0;
-
       virtual void decode(TcpBinaryMessage&, std::shared_ptr<AssymmetricAlgortrithmSecurityHeader>& value) = 0;
       virtual void decode(TcpBinaryMessage&, std::shared_ptr<SymmetricAlgorithmSecurityHeader>& value) = 0;
       virtual void decode(TcpBinaryMessage&, std::shared_ptr<SymmetricCryptoContext>& context, std::shared_ptr<SymmetricAlgorithmSecurityHeader>& value) = 0;

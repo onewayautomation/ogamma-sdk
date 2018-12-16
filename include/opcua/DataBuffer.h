@@ -27,7 +27,7 @@ namespace OWA {
         return buffer.data();
       }
       uint32_t size() {
-        return buffer.size();
+        return (uint32_t) buffer.size();
       }
       void sgetn(uint8_t* m, uint32_t count) {
 				if ((position + count) > buffer.size())

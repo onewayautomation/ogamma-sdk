@@ -141,7 +141,8 @@ namespace OWA {
     enum struct ExtensibleParameterBodyType:uint8_t {
       None = 0,
       ByteString = 1,
-      Xml = 2
+      Xml = 2,
+			Json = 3
     };
 
     union DiagnosticInfoEncodingMask {

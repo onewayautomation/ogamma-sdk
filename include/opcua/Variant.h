@@ -77,7 +77,7 @@ namespace OWA {
 				StatusCode	statusCode;
 				QualifiedName qualifiedName;
 				LocalizedText localizedText;
-				ExtensionObject extensionObject;
+				ExtensionObject::Ptr extensionObject;
 				// DataValue	dataValue;
 				DiagnosticInfo diagnosticInfo;
 				//Variant	variant;
@@ -102,7 +102,7 @@ namespace OWA {
 				std::vector<StatusCode> statusCodeArray;
 				std::vector<QualifiedName> qualifiedNameArray;
 				std::vector<LocalizedText> localizedTextArray;
-				std::vector<ExtensionObject> extensionObjectArray;
+				std::vector<ExtensionObject::Ptr> extensionObjectArray;
 				std::vector<DiagnosticInfo> diagnosticInfoArray;
 				std::vector<Variant> variantArray;
 			};
@@ -139,7 +139,7 @@ namespace OWA {
 			Variant(const StatusCode& other);
 			Variant(const QualifiedName& other);
 			Variant(const LocalizedText& other);
-			Variant(const ExtensionObject& other);
+			Variant(const ExtensionObject::Ptr& other);
 			Variant(const DiagnosticInfo& other);
 
 			Variant(const std::vector<bool>);
@@ -163,7 +163,7 @@ namespace OWA {
 			Variant(const std::vector<StatusCode>& other);
 			Variant(const std::vector<QualifiedName>& other);
 			Variant(const std::vector<LocalizedText>& other);
-			Variant(const std::vector<ExtensionObject>& other);
+			Variant(const std::vector<ExtensionObject::Ptr>& other);
 			Variant(const std::vector<DiagnosticInfo>& other);
 			Variant(const std::vector<Variant>& other);
 
@@ -192,7 +192,7 @@ namespace OWA {
 			Variant& operator=(const StatusCode& other);
 			Variant& operator=(const QualifiedName& other);
 			Variant& operator=(const LocalizedText& other);
-			Variant& operator=(const ExtensionObject& other);
+			Variant& operator=(const ExtensionObject::Ptr& other);
 			Variant& operator=(const DiagnosticInfo& other);
 			Variant& operator=(const Variant& other);
 			
@@ -217,7 +217,7 @@ namespace OWA {
 			Variant& operator=(const std::vector<StatusCode>& other);
 			Variant& operator=(const std::vector<QualifiedName>& other);
 			Variant& operator=(const std::vector<LocalizedText>& other);
-			Variant& operator=(const std::vector<ExtensionObject>& other);
+			Variant& operator=(const std::vector<ExtensionObject::Ptr>& other);
 			Variant& operator=(const std::vector<DiagnosticInfo>& other);
 			Variant& operator=(const std::vector<Variant>& other);
 

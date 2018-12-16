@@ -5,8 +5,9 @@
 namespace OWA {
 	namespace OpcUa {
 		struct DataValue {
-			DataValue() {};
+			DataValue();
 			DataValue(const DataValue& other);
+			DataValue(const Variant& value);
 			~DataValue();
 			Variant value;
 			StatusCode statusCode;

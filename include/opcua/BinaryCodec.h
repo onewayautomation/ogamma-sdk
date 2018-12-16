@@ -159,6 +159,7 @@ namespace OWA {
         virtual void decode(DataBufferPtr& buffer, std::shared_ptr<CallResponse>& value);
 				
 				virtual void encode(DataBufferPtr& buffer, const CallMethodRequest& value);
+				virtual void encode(DataBufferPtr& buffer, const WriteValue& value);
 				virtual void decode(DataBufferPtr& buffer, CallMethodResult& value);
 
       protected:
@@ -209,6 +210,7 @@ namespace OWA {
 				void encode(DataBufferPtr& buffer, const QualifiedName& value);
 				void encode(DataBufferPtr& buffer, const ViewDescription& value);
 				void encode(DataBufferPtr& buffer, const BrowseDescription& value);
+				void encode(DataBufferPtr& buffer, const DataValue& value);
 				void encode(DataBufferPtr& buffer, const Variant& value);
 				void encode(DataBufferPtr& buffer, bool value);
 				void encode(DataBufferPtr& buffer, const MonitoredItemCreateRequest& value);

@@ -66,17 +66,34 @@ namespace OWA {
 			}
     };
 
+		struct WriteValue
+		{
+			WriteValue() { attributeId = 13; /*Value attribute */}
+			WriteValue(const NodeId& nodeId, const DataValue& dataValue);
+			NodeId nodeId;
+			IntegerId attributeId;
+			std::string indexRange;
+			DataValue value;
+		};
+
     struct WriteRequest {
       static RequestResponseTypeId getTypeId() {
         return RequestResponseTypeId::WriteRequest;
       }
+			WriteRequest();
+			WriteRequest(const WriteValue& writeValue);
       RequestHeader header;
 			boost::any		context;
+			std::vector<WriteValue> nodesToWrite;
 
 			typedef std::shared_ptr<WriteRequest> Ptr;
     };
+
     struct WriteResponse {
       ResponseHeader header;
+			std::vector<StatusCode> results;
+			std::vector<DiagnosticInfo> diagnosticInfos;
+			inline bool isGood() { return Utils::isGood(*this); }
     };
 
 	struct HistoryReadValueId
@@ -116,7 +133,7 @@ namespace OWA {
       ResponseHeader header;
 			std::vector<HistoryReadResult> results;
 			std::vector<DiagnosticInfo> diagnosticInfos;
-
+			inline bool isGood() { return Utils::isGood(*this); }
 			typedef std::shared_ptr<HistoryReadResponse> Ptr;
     };
 
@@ -131,7 +148,7 @@ namespace OWA {
     };
     struct HistoryUpdateResponse {
       ResponseHeader header;
-
+			inline bool isGood() { return Utils::isGood(*this); }
 			typedef std::shared_ptr<HistoryUpdateResponse> Ptr;
     };
 

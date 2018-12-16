@@ -54,6 +54,8 @@ namespace OWA {
       * Connection object with default parameters: protocol opc.tcp with binary encoding and base cryptography class.
       */
       static std::shared_ptr<Connection> create();
+			static std::shared_ptr<Connection> create(const ClientConfiguration& config);
+			static std::shared_ptr<Connection> create(const std::string& endpointUrl, bool createSession = false);
 			static std::shared_ptr<Connection> create(StateChangeCallback& stateChangeCallback);
       ~Connection();
 
