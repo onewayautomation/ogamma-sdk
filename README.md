@@ -46,7 +46,10 @@ It is in "incubation" stage. Source code is stored in private repository. Basic 
   - GetEndpoints
   - CreateSession
   - ActivateSession
+  - Call
   - Read
+  - Write
+  - HistoryRead  
   - Browse
   - BrowseNext
   - CreateSubscription
@@ -61,14 +64,13 @@ It is in "incubation" stage. Source code is stored in private repository. Basic 
 - OPC Binary encoding: implemented for most data types, required to send requests and receive responses for functionality listed above.
 ## Road-map
 ### Version 1.0
+Estimated time of delivery - first quorter of 2019.
 - Client side features only.
 - Polish features listed in section "Current status of the project"
 - Add support for services required to have "minimum viable product":
   - TranslateBrowsePathsToNodeIds
-  - Write
   - ModifySubscription;
   - ModifyMonitoredItems;
-- Create 64 bit installers for Windows and Linux
 ### Next versions
 TBD.
 
@@ -89,7 +91,7 @@ For versions starting from 1.0 licensing terms might change. Various options are
 
 Final decision will depend on how the project is perceived by OPC UA community.
 
-For open source projects, as well as for personal usage and educational purposes binary redistributables will be free. 
+For open source projects, for non-commercial organizations, as well as for personal usage and educational purposes binary redistributables will be free. 
 
 ## How to use
 For instructions how to use it please visit home page for the sample [OPC UA Test Client project:](https://github.com/RavilN/OpcUaTestClient)
