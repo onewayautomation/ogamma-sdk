@@ -6,7 +6,6 @@
 #include <vector>
 #include <stdint.h>
 #include "opcua/LocalizedText.h"
-#include "opcua/Configurable.h"
 #include <memory>
 #include "opcua/OperationResult.h"
 
@@ -24,12 +23,16 @@
 #include "opcua/Subscribe.h"
 #include "opcua/Monitor.h"
 #include "opcua/Call.h"
+#include "opcua/TransportSettings.h"
 
 namespace OWA {
   namespace OpcUa{
     class Transport  {
     public:
       virtual ~Transport() {};
+
+			virtual void setConfiguration(const TransportSettings& config) = 0;
+			virtual TransportSettings getConfiguration() const = 0;
 
       virtual void setCallback(std::shared_ptr<connectionStateChangeCallback>& f) = 0;
 
@@ -113,6 +116,10 @@ namespace OWA {
       virtual void stopListen(const boost::any& context) = 0;
 
 			virtual std::weak_ptr<Transport> getSelfRef() = 0;
+
+			virtual void sendChunkIfFull() = 0;
+			virtual void checkTotalMessageSize(uint32_t bytesToSend) = 0;
+			virtual uint32_t getMaxSendChunkCount() = 0;
     };
   }
 }

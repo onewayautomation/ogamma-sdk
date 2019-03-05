@@ -23,9 +23,10 @@
 #include "opcua/Monitor.h"
 #include "opcua/Call.h"
 #include <memory>
+#include <stdint.h>
+
 namespace OWA {
   namespace OpcUa {
-    typedef std::pair<std::shared_ptr<MessageHeader>, DataBufferPtr> TcpBinaryMessage;
     class Codec {
     public:
       virtual void encode(DataBufferPtr& buffer, HelloMessage& body) = 0;
@@ -34,9 +35,9 @@ namespace OWA {
       virtual void decode(DataBufferPtr&  buffer, std::shared_ptr<HelloMessage>& result) = 0;
       virtual void decode(DataBufferPtr&  buffer, std::shared_ptr<AchnowledgeMessage>& result) = 0;
       virtual void decode(DataBufferPtr&  buffer, std::shared_ptr<ErrorMessage>& result) = 0;
-      virtual void decode(TcpBinaryMessage&, std::shared_ptr<AssymmetricAlgortrithmSecurityHeader>& value) = 0;
-      virtual void decode(TcpBinaryMessage&, std::shared_ptr<SymmetricAlgorithmSecurityHeader>& value) = 0;
-      virtual void decode(TcpBinaryMessage&, std::shared_ptr<SymmetricCryptoContext>& context, std::shared_ptr<SymmetricAlgorithmSecurityHeader>& value) = 0;
+      virtual void decode(TcpReadContextPtr&, std::shared_ptr<AssymmetricAlgortrithmSecurityHeader>& value) = 0;
+      virtual void decode(TcpReadContextPtr&, std::shared_ptr<SymmetricAlgorithmSecurityHeader>& value) = 0;
+      virtual void decode(TcpReadContextPtr&, std::shared_ptr<SymmetricCryptoContext>& context, std::shared_ptr<SymmetricAlgorithmSecurityHeader>& value) = 0;
 
       virtual void encode(DataBufferPtr& buffer, OpenSecureChannelRequest& value, std::shared_ptr<SymmetricCryptoContext>& context) = 0;
       virtual void encode(DataBufferPtr& buffer, OpenSecureChannelResponse& value, std::shared_ptr<SymmetricCryptoContext>& context) = 0;
@@ -169,6 +170,10 @@ namespace OWA {
       virtual void encode(DataBufferPtr& buffer, CallResponse& value, std::shared_ptr<SymmetricCryptoContext>& context) = 0;
       virtual void decode(DataBufferPtr& buffer, std::shared_ptr<CallRequest>& value) = 0;
       virtual void decode(DataBufferPtr& buffer, std::shared_ptr<CallResponse>& value) = 0;
+
+			virtual void decode(DataBufferPtr& buffer, ExpandedNodeId& value) = 0;
+
+			virtual void encodeHeader(DataBufferPtr& buffer, ChannelSecurityToken& token, uint32_t& sequenceHeaderPosition) = 0;
 
     };
   }

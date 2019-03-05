@@ -2,84 +2,56 @@
 #include <vector>
 #include <stdint.h>
 #include <memory>
+#include <functional>
+#include "opcua/Transport.h"
 
 namespace OWA {
   namespace OpcUa {
-    class DataBuffer {
+		class Transport;
+
+		class DataBuffer {
+			friend Transport;
     public:
-      DataBuffer() {
-        position = 0;
-      }
+			DataBuffer();
 
-      DataBuffer(uint32_t count, uint8_t value = 0) : buffer(count, value) {
-        position = 0;
-      }
-      DataBuffer& operator=(const std::vector<uint8_t>& other) {
-        this->buffer = other;
-        position = 0;
-        return *this;
-      }
+			// Reserves buffer size, and keeps size of buffer as 0.
+			DataBuffer(uint32_t count);
+			// Initializes buffer with "count" elements each equal to "value". Size of the buffer becomes equal to count.
+			DataBuffer(uint32_t count, uint8_t value);
 
-      uint8_t& operator[](uint32_t index) {
-        return buffer[index];
-      }
-      uint8_t* data() {
-        return buffer.data();
-      }
-      uint32_t size() {
-        return (uint32_t) buffer.size();
-      }
-      void sgetn(uint8_t* m, uint32_t count) {
-				if ((position + count) > buffer.size())
-				{
-					std::stringstream stream;
-					stream << "Decoding error. Buffer with length " << buffer.size() << " is being accessed from position " << position << " to " << (position + count);
-					throw OperationResult(StatusCode::BadDecodingError, stream.str());
-				}
-        memcpy(m, buffer.data() + position, count);
-        position += count;
-      }
-      void sgetn(void* m, uint32_t count) {
-        sgetn((uint8_t*)m, count);
-      }
-
-      void sputn(const uint8_t* m, uint32_t count) {
-        for (uint32_t index = 0; index < count; index++) {
-          buffer.push_back( *(m + index) );
-        }
-      }
-      void sputn(const void* m, uint32_t count) {
-        sputn((const uint8_t*)m, count);
-      }
-
-      void replace(uint32_t pos, const uint8_t* m, uint32_t count) {
-        memcpy(buffer.data() + pos, m, count);
-      }
-      void replace(uint32_t pos, const void* m, uint32_t count) {
-        replace(pos, (const uint8_t*)m, count);
-      }
-
-
-      void reserve(uint32_t count) {
-        buffer.reserve(count);
-      }
-      void setPosition(uint32_t position) {
-        this->position = position;
-      }
-      uint32_t getPosition() {
-        return position;
-      }
-
-      void resize(uint32_t newSize, const uint8_t& value = 0) {
-        buffer.resize(newSize, value);
-      }
-      void swap(std::vector<uint8_t>& other) {
-        buffer.swap(other);
-      }
+			DataBuffer& operator=(const std::vector<uint8_t>& other);
+			uint8_t& operator[](uint32_t index);
+			uint8_t* data();
+			uint32_t size();
+			void sgetn(uint8_t* m, uint32_t count);
+			void sgetn(void* m, uint32_t count);
+			void sputn(const uint8_t* m, uint32_t count);
+			void sputn(const void* m, uint32_t count);
+			void replace(uint32_t pos, const uint8_t* m, uint32_t count);
+			void replace(uint32_t pos, const void* m, uint32_t count);
+			void reserve(uint32_t count);
+			void setPosition(uint32_t position);
+			uint32_t getPosition();
+			void resize(uint32_t newSize, const uint8_t& value = 0);
+			void swap(std::vector<uint8_t>& other);
+			void setFlag(char flag);
+			char getFlag();
+			void clear();
+			bool incrementChunkNumber();
+			uint32_t getSecurityRequestId();
+			void setTransport(std::shared_ptr<Transport>& transport);
+			void setSecurityRequestId(uint32_t id);
+			void push_back(std::shared_ptr<DataBuffer>& other);
 
     protected:
-      std::vector<uint8_t> buffer;
-      uint32_t position;
+			void init();
+      std::vector<uint8_t> buffer; 
+			uint32_t position;
+			std::shared_ptr<Transport> transport;
+			uint32_t totalMessageSize;
+			uint32_t chunkNumber;
+			char messageFlag;
+			uint32_t securityRequestId;
     };
 
     typedef std::shared_ptr<DataBuffer> DataBufferPtr;

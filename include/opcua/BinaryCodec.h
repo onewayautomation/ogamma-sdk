@@ -26,9 +26,9 @@ namespace OWA {
         void decode(DataBufferPtr& buffer, OpenSecureChannelRequest& value);
         void decode(DataBufferPtr& buffer, std::shared_ptr<OpenSecureChannelResponse>& value);
 
-        void decode(TcpBinaryMessage&, std::shared_ptr<AssymmetricAlgortrithmSecurityHeader>& value);
-        void decode(TcpBinaryMessage&, std::shared_ptr<SymmetricAlgorithmSecurityHeader>& value);
-        void decode(TcpBinaryMessage&, std::shared_ptr<SymmetricCryptoContext>& context, std::shared_ptr<SymmetricAlgorithmSecurityHeader>& value);
+        void decode(TcpReadContextPtr&, std::shared_ptr<AssymmetricAlgortrithmSecurityHeader>& value);
+        void decode(TcpReadContextPtr&, std::shared_ptr<SymmetricAlgorithmSecurityHeader>& value);
+        void decode(TcpReadContextPtr&, std::shared_ptr<SymmetricCryptoContext>& context, std::shared_ptr<SymmetricAlgorithmSecurityHeader>& value);
 
         void encode(DataBufferPtr& buffer, FindServersRequest& value, std::shared_ptr<SymmetricCryptoContext>& context);
         void encode(DataBufferPtr& buffer, FindServersResponse& value, std::shared_ptr<SymmetricCryptoContext>& context) {};
@@ -255,36 +255,18 @@ namespace OWA {
 				void decode(DataBufferPtr& buffer, ExtensionObject::Ptr& value);
 				void decode(DataBufferPtr& buffer, MonitoredItemNotification& value);
 
+				void encodeHeader(DataBufferPtr& buffer, ChannelSecurityToken& token, uint32_t& sequenceHeaderPosition);
+
         template<typename RequestType>
-        void encodeHeader(DataBufferPtr& buffer, ChannelSecurityToken& token, RequestType& value, uint32_t& sequenceHeaderPosition) {
-          // 1. Initialize buffer:
-          if (buffer.get() == 0) {
-            buffer.reset(new DataBuffer);
-          }
-
-          // 2. Serialize message header:
-          MessageHeader header(TcpMessageType::MSG);
-          buffer->sputn((const char*)&header, sizeof(MessageHeader));
-
-          encode(buffer, token.SecureChannelId);
-
-          // 3. Serialize Symmetric Algorithm Security Header (SASH)
-          encode(buffer, token.TokenId);
+        void encodeHeader(DataBufferPtr& buffer, ChannelSecurityToken& token, RequestType& value, uint32_t& sequenceHeaderPosition) 
+				{
+					// 1. Encode full header:
+					encodeHeader(buffer, token, sequenceHeaderPosition);
           
-          sequenceHeaderPosition = buffer->size();
-
-          // 4. Serialize SequenceHeader:
-					sequenceNumber++;
-					if (sequenceNumber > 4294966271) {
-						sequenceNumber = 0; //Must be less than 1024
-					}
-					encode(buffer, sequenceNumber);
-          encode(buffer, value.header.getRequestId());
-
-          // 5. Serialize body with request:
-          // First, serialize type id for this request:
+					// 2. Encode body of the request:
+					// 2.1. First, serialize type id for this request:
           encode(buffer, ExpandedNodeId::getId(RequestType::getTypeId()));
-          // And then actual body:
+					// 2.2. And then request header:
           encode(buffer, value.header);
         }
 

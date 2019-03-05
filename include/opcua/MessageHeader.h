@@ -1,8 +1,9 @@
 #pragma once
 #include "opcua/ByteString.h"
 #include <stdint.h>
-
+#include "opcua/TransportSettings.h"
 #include "opcua/ExpandedNodeId.h"
+#include "opcua/DataBuffer.h"
 
 namespace OWA{
   namespace OpcUa {
@@ -55,6 +56,7 @@ namespace OWA{
         uint8_t ChunkType;
         uint32_t MessageSize; // Includes length of this message (8 bytes)
       };
+			typedef std::shared_ptr<MessageHeader> MessageHeaderPtr;
 
       struct SequenceHeader
       {
@@ -99,7 +101,7 @@ namespace OWA{
         uint32_t secureChannelId;
         uint32_t tokenId;
         SequenceHeader sequenceHeader;
-        ExpandedNodeId typeNodeId;
+        // TODO ExpandedNodeId typeNodeId;
       };
 
       struct SecureConversationMessageFooter {
@@ -110,14 +112,17 @@ namespace OWA{
       };
 
       struct HelloMessage {
-        HelloMessage(const std::string& url) {
+        HelloMessage(const TransportSettings& settings, const std::string& url) {
           EndpointUrl = url;
           ProtocolVersion = 0;
-					ReceiveBufferSize = 16777216;
-          SendBufferSize = 16777216;
-          MaxMessageSize = 16777216; // no limit. Must be minimum 8196 bytes.
-          MaxChunkCount = 1; 
+					ReceiveBufferSize = settings.receiveBufferSize;
+					SendBufferSize = settings.sendBufferSize;
+          MaxMessageSize = settings.maxReceiveMessageSize; // no limit. Must be minimum 8196 bytes.
+					if (MaxMessageSize < 8196)
+						MaxMessageSize = 8196;
+          MaxChunkCount = settings.maxReceiveChunkCount;
         }
+
         uint32_t ProtocolVersion;
         uint32_t ReceiveBufferSize;
         uint32_t SendBufferSize;
@@ -158,5 +163,66 @@ namespace OWA{
         uint32_t error;
         std::string reason;
       };
+
+			struct TcpReadContext
+			{
+				TcpReadContext()
+				{
+					currentDataBuffer.reset(new DataBuffer(8, 0));
+					chunkCounter = 0;
+				}
+
+				// Returns true if all chunks are received.
+				bool isComplete()
+				{
+					if (currentMessageHeader->ChunkType == 'A')
+						return true;
+					else if (chunks.empty())
+						return false;
+					else
+					{
+						// Even if the current message chunk is final, check if all chunks are received (in case if they came out of order).
+						// If we go from the latest chunk to the beginning of the map, then each entry should have sequence number decremented by 1.
+						uint32_t lastSequenceNumber = chunks.rbegin()->first;
+						uint32_t firstSequenceNumber = chunks.begin()->first;
+						if ((lastSequenceNumber + 1 - firstSequenceNumber) == chunks.size() && chunks.rbegin()->second.first->ChunkType == 'F')
+							return true;
+						else
+							return false;
+					}
+				}
+
+				DataBufferPtr assembleMessage()
+				{
+					if (chunks.size() <= 1)
+						return currentDataBuffer;
+					else
+					{
+						uint32_t totalSize = 0;
+						for (auto iter = chunks.begin(); iter != chunks.end(); iter++)
+						{
+							totalSize += iter->second.second->size();
+						}
+						currentDataBuffer.reset(new DataBuffer(totalSize));
+						for (auto iter = chunks.begin(); iter != chunks.end(); iter++)
+						{
+							currentDataBuffer->push_back(iter->second.second);
+							iter->second.second.reset();
+						}
+						return currentDataBuffer;
+					}
+				}
+
+				// Ordered by sequence number message chunks with headers:
+				std::map<uint32_t, std::pair<MessageHeaderPtr, DataBufferPtr>> chunks;
+				// Number of received chunks:
+				uint32_t chunkCounter;
+				// Storage for message header of the currently received message chunk:
+				MessageHeaderPtr currentMessageHeader;
+				// Currently used data Buffer. It is also storage for the final  total message buffer, assembled from multiple chunks.
+				DataBufferPtr currentDataBuffer;
+			};
+			typedef std::shared_ptr<TcpReadContext> TcpReadContextPtr;
+
     }
   }

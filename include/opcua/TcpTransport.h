@@ -18,6 +18,10 @@
 #include <atomic>
 #include "opcua/SymmetricCryptoContext.h"
 #include <atomic>
+#include <iostream>
+#include <queue>
+#include "opcua/TransportSettings.h"
+#include <map>
 
 namespace OWA {
   namespace OpcUa {
@@ -25,6 +29,9 @@ namespace OWA {
     public:
       TcpTransport(std::shared_ptr<Codec> codec, std::shared_ptr<Cryptor> cryptor);
       virtual ~TcpTransport();
+			void setConfiguration(const TransportSettings& config);
+			TransportSettings getConfiguration() const;
+
 			void setSelfRef(std::weak_ptr<TcpTransport>& ref);
 			std::weak_ptr<Transport> getSelfRef();
       void setCallback(std::shared_ptr<connectionStateChangeCallback>& f) { connectCallback = f; }
@@ -105,15 +112,16 @@ namespace OWA {
       virtual void disconnect(bool doCallBack = true);
       virtual void listen(const boost::any& context, const std::string& url);
       virtual void stopListen(const boost::any& context);
-
-      virtual std::string getConfigurationMetadata(const::std::string& locale);
-      virtual std::string getConfiguration();
-      virtual void setConfiguration(const std::string& configuration);
       
       void AddSymmetricCryptoContext(std::shared_ptr<SymmetricCryptoContext>& context);
       void RemoveSymmetricCryptoContext(uint32_t secureChannelId);
       std::shared_ptr<SymmetricCryptoContext> GetSymmetricCryptoContext(uint32_t secureChannelId);
 			std::string getEndpointUrl();
+
+			void sendChunkIfFull();
+			void checkTotalMessageSize(uint32_t bytesToSend);
+			uint32_t getMaxSendChunkCount();
+			void setTransportSettings(const TransportSettings& settings);
     protected:
       // Template member functions cannot be virtual, as a workaround created methods with explicit types which then call this method:
       template<typename RequestType>
@@ -124,10 +132,9 @@ namespace OWA {
 	    void handle_connect_timeout();
 	    
       void start_read_message_header();
-      void handle_read_message_header(DataBufferPtr buffer, const boost::system::error_code& ec, size_t bytes);
+      void handle_read_message_header(TcpReadContextPtr readContext, const boost::system::error_code& ec, size_t bytes);
 
-      void handle_read_message_body(std::pair<std::shared_ptr<OWA::OpcUa::MessageHeader>, DataBufferPtr> readContext,
-        const boost::system::error_code& ec, size_t bytes);
+      void handle_read_message_body(TcpReadContextPtr readContext, const boost::system::error_code& ec, size_t bytes);
 
 			bool isOk(const boost::system::error_code& ec, size_t bytes);
       void stop();
@@ -196,65 +203,109 @@ namespace OWA {
 
       ChannelSecurityToken securityToken;
       std::shared_ptr<SymmetricCryptoContext> symmetricCryptoContext;
-      std::recursive_mutex sendMutex;
+      std::mutex sendMutex;
       ByteString clientNonce;
 
 			std::weak_ptr<TcpTransport> selfRef;
+
+			bool readyToSend;
+			std::condition_variable sendConditionVariable;
+			
+			// Data Buffer which is currently being sent.
+			DataBufferPtr outgoingDataBuffer;
+
+			TransportSettings requestedSettings;
+			TransportSettings revisedSettings;
     };
 
     template<typename RequestType>
     void OWA::OpcUa::TcpTransport::sendRequestImpl(std::shared_ptr<RequestType>& request)
     {
-			std::lock_guard<std::recursive_mutex> lock(sendMutex);
-			if (stopped_ || !socket_ || state != Connected ) 
+      // Encode and put into the queue from within a lock, so only one thread at a time can do that, to make sure
+      // that messages are sent in order with sequence numbers.
+        
+      // Encode it:
+			DataBufferPtr message = std::make_shared<DataBuffer>();
+			outgoingDataBuffer = message;
+			std::shared_ptr<Transport> r = selfRef.lock();
+
+			message->setTransport(r);
+			message->setSecurityRequestId(request->header.getRequestId());
+
+			// Wait until previous request is sent:
+			std::unique_lock<std::mutex> lk(sendMutex);
+			sendConditionVariable.wait(lk, [this] 
 			{
+				return this->readyToSend;
+			});
+
+			if (stopped_ || !socket_ || state != Connected)
+			{
+				lk.unlock();
 				throw OperationResult(StatusCode::BadDisconnect, "Transport layer is not connected");
 			}
+			readyToSend = false;
+      auto context = GetSymmetricCryptoContext(0);
+      codec->encode(message, *request, context);
 
-      {
-        // Encode and send from within a lock, so only one thread at a time can do that, to make sure
-        // that messages are sent in order with sequence numbers.
-        
-        // Encode it:
-        DataBufferPtr message;
-        auto context = GetSymmetricCryptoContext(0);
-        codec->encode(message, *request, context);
+			std::function<OperationResult(std::weak_ptr<TcpTransport> wp, DataBufferPtr& buffer)> sendFunction;
 
-        // Start an asynchronous operation to send it:
-				try {
-					if (request->getTypeId() == RequestResponseTypeId::CloseSecureChannelRequest) 
-					{
-						std::weak_ptr<TcpTransport> wp = selfRef;
-						boost::asio::async_write(*socket_, boost::asio::buffer(message->data(), message->size()), [wp, request, message]
-						(const boost::system::error_code& ec, size_t bytes)
-						{
-							if (auto sp = wp.lock())
-							{
-								// No response comes from the server for this request, so requestId needs to be passed to the callback:
-								sp->handleChannelClose(request->header.requestId, message, ec, bytes);
-							}
-						});
-					}
-					else 
-					{
-						std::weak_ptr<TcpTransport> wp = selfRef;
-						boost::asio::async_write(*socket_, boost::asio::buffer(message->data(), message->size()), [wp, message](const boost::system::error_code& ec, size_t bytes)
-						{
-							if (auto sp = wp.lock())
-							{
-								sp->handle_hello(message, ec, bytes);
-							}
-						});
-					}
-				}
-				catch (const OperationResult& or )
+      // Start an asynchronous operation to send the request message:
+			try {
+				if (request->getTypeId() == RequestResponseTypeId::CloseSecureChannelRequest) 
 				{
-					throw or ;
+					std::weak_ptr<TcpTransport> wp = selfRef;
+					boost::asio::async_write(*socket_, boost::asio::buffer(message->data(), message->size()), [wp, request, message]
+					(const boost::system::error_code& ec, size_t bytes)
+					{
+						if (auto sp = wp.lock())
+						{
+							// No response comes from the server for this request, so requestId needs to be passed to the callback:
+							sp->handleChannelClose(request->header.requestId, message, ec, bytes);
+							{
+								std::lock_guard<std::mutex> lk(sp->sendMutex);
+								sp->readyToSend = true;
+							}
+							sp->sendConditionVariable.notify_one();
+						}
+					});
 				}
-				catch (const std::exception& ex) {
-					throw OperationResult(StatusCode::BadCommunicationError, ex.what());
+				else 
+				{
+					// Send message
+					std::weak_ptr<TcpTransport> wp = selfRef;
+					boost::asio::async_write(*socket_, boost::asio::buffer(message->data(), message->size()), [wp, message](const boost::system::error_code& ec, size_t bytes)
+					{
+						if (auto sp = wp.lock())
+						{
+							sp->handle_hello(message, ec, bytes);
+							{
+								std::lock_guard<std::mutex> lk(sp->sendMutex);
+								sp->readyToSend = true;
+							}
+							sp->sendConditionVariable.notify_one();
+						}
+					});
 				}
-      }
+			}
+			catch (const OperationResult& or )
+			{
+				std::cout << "TcpTransport::sendRequest caught expection: " << or.toString() << std::endl;
+				readyToSend = true;
+				lk.unlock();
+				sendConditionVariable.notify_one();
+				throw or ;
+			}
+			catch (const std::exception& ex) 
+			{
+				readyToSend = true;
+				lk.unlock();
+				sendConditionVariable.notify_one();
+				throw OperationResult(StatusCode::BadCommunicationError, ex.what());
+			}
+
+			// Unlock mutex
+			lk.unlock();
     }
 
   }

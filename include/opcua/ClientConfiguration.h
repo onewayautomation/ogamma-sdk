@@ -3,6 +3,7 @@
 #include "opcua/ApplicationDescription.h"
 #include "opcua/GetEndpoints.h"
 #include "opcua/UserIdentityToken.h"
+#include "opcua/TransportSettings.h"
 
 namespace OWA {
   namespace OpcUa {
@@ -64,6 +65,8 @@ namespace OWA {
 			uint32_t maxReferencesPerNode;
 			
 			uint32_t parallelPublishRequests;
+
+			TransportSettings transportSettings;
 	  };
 
     struct ClientConfiguration {

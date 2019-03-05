@@ -348,7 +348,7 @@ namespace OWA {
 			bool removeRequestContext(RequestId id);
       bool removeConnectContext(ConnectionState newState);
       int32_t getNumberOfPendingRequests();
-			void callPublishRequestsAfterCreateSubscriptioin();
+			void callPublishRequestsAfterCreateSubscription();
 			void startConnectionCheck();
 			void processPendingRequests(bool disconnecting, StatusCode statusCode);
 
