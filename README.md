@@ -12,9 +12,10 @@ Includes header files and pre-built binaries for Visual Studio 2017.
 The key differentiators of this SDK from other existing in the market C++ SDKs will be:
 
  - Designed following "Low Code" philosophy: applications using it would need to write minial code. Example of writing value to single node:
-    WriteRequest::Ptr req(new WriteRequest(WriteValue (NodeId("Demo.Static.Scalar.UInt32", 2), DataValue((uint32_t) 123))));
+````C++    WriteRequest::Ptr req(new WriteRequest(WriteValue (NodeId("Demo.Static.Scalar.UInt32", 2), DataValue((uint32_t) 123))));
     auto writeResult = connection->send(req).get();
     if (writeResult->isGood())
+````    
  - Written in modern C++ (11 or higher);
  - Leverages existing open source libraries (boost for asynchronous communication, Botan for cryptography, ODB for Object-Relational Mapping)  to shorten time to market.
  - Cloud ready - microservice-style applications can be created by using of this SDK, which then should be able to be deployed and run on such environments as Azure Service Fabric and Cloud Foundry. 
