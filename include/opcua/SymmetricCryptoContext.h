@@ -9,10 +9,11 @@ namespace OWA {
   namespace OpcUa {
     class SymmetricCryptoContext {
     public:
-      SymmetricCryptoContext(ChannelSecurityToken& securityToken, std::shared_ptr<SecurityPolicy> securityPolicy, SecurityMode securityMode);
+			SymmetricCryptoContext();
+			SymmetricCryptoContext(ChannelSecurityToken& securityToken, std::shared_ptr<SecurityPolicy> securityPolicy, SecurityMode securityMode);
       void initialize();
 
-      uint32_t getId() { return securityToken.SecureChannelId; }
+      uint32_t getId() { return securityToken.TokenId; }
 
       SecureByteString PRF(const SecureByteString& secret, const SecureByteString& seed, uint32_t length);
 

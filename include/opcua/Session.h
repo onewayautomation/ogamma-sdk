@@ -72,5 +72,19 @@ namespace OWA {
       std::vector<DiagnosticInfo> diagnosticInfos;
 			inline bool isGood() { return StatusCodeUtil::isGood(this->header.serviceResult); }
     };
+
+		struct CloseSessionRequest
+		{
+			static RequestResponseTypeId getTypeId();
+			CloseSessionRequest(bool seleteSubscriptions = true);
+			RequestHeader header;
+			bool deleteSubscriptions;
+			typedef std::shared_ptr<CloseSessionRequest> Ptr;
+		};
+
+		struct CloseSessionResponse {
+			ResponseHeader header;
+			inline bool isGood() { return StatusCodeUtil::isGood(this->header.serviceResult); }
+		};
   }
 }

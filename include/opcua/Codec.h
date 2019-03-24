@@ -71,6 +71,11 @@ namespace OWA {
       virtual void decode(DataBufferPtr& buffer, std::shared_ptr<ActivateSessionRequest>& value) = 0;
       virtual void decode(DataBufferPtr& buffer, std::shared_ptr<ActivateSessionResponse>& value) = 0;
 
+			virtual void encode(DataBufferPtr& buffer, CloseSessionRequest& value, std::shared_ptr<SymmetricCryptoContext>& context) = 0;
+			virtual void encode(DataBufferPtr& buffer, CloseSessionResponse& value, std::shared_ptr<SymmetricCryptoContext>& context) = 0;
+			virtual void decode(DataBufferPtr& buffer, std::shared_ptr<CloseSessionRequest>& value) = 0;
+			virtual void decode(DataBufferPtr& buffer, std::shared_ptr<CloseSessionResponse>& value) = 0;
+
       virtual void encode(DataBufferPtr& buffer, BrowseRequest& value, std::shared_ptr<SymmetricCryptoContext>& context) = 0;
       virtual void encode(DataBufferPtr& buffer, BrowseResponse& value, std::shared_ptr<SymmetricCryptoContext>& context) = 0;
       virtual void decode(DataBufferPtr& buffer, std::shared_ptr<BrowseRequest>& value) = 0;

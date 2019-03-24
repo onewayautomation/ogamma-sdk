@@ -43,6 +43,7 @@ namespace OWA {
 
       void setCallback(std::shared_ptr<onResponseReceived<CreateSessionResponse>>& f);
       void setCallback(std::shared_ptr<onResponseReceived<ActivateSessionResponse>>& f);
+			void setCallback(std::shared_ptr<onResponseReceived<CloseSessionResponse>>& f);
 
       void setCallback(std::shared_ptr<onResponseReceived<BrowseResponse>>& f);
       void setCallback(std::shared_ptr<onResponseReceived<BrowseNextResponse>>& f);
@@ -78,6 +79,7 @@ namespace OWA {
 
       void sendRequest(std::shared_ptr<CreateSessionRequest>& request);
       void sendRequest(std::shared_ptr<ActivateSessionRequest>& request);
+			void sendRequest(std::shared_ptr<CloseSessionRequest>& request);
 
       void sendRequest(std::shared_ptr<BrowseRequest>& request);
       void sendRequest(std::shared_ptr<BrowseNextRequest>& request);
@@ -114,8 +116,8 @@ namespace OWA {
       virtual void stopListen(const boost::any& context);
       
       void AddSymmetricCryptoContext(std::shared_ptr<SymmetricCryptoContext>& context);
-      void RemoveSymmetricCryptoContext(uint32_t secureChannelId);
-      std::shared_ptr<SymmetricCryptoContext> GetSymmetricCryptoContext(uint32_t secureChannelId);
+      void RemoveSymmetricCryptoContext(uint32_t tokenId);
+      std::shared_ptr<SymmetricCryptoContext> GetSymmetricCryptoContext(uint32_t tokenId);
 			std::string getEndpointUrl();
 
 			void sendChunkIfFull();
@@ -175,6 +177,7 @@ namespace OWA {
 
       std::shared_ptr<onResponseReceived<CreateSessionResponse>> onCreateSessionResponse;
       std::shared_ptr<onResponseReceived<ActivateSessionResponse>> onActivateSessionResponse;
+			std::shared_ptr<onResponseReceived<CloseSessionResponse>> onCloseSessionResponse;
 
       std::shared_ptr<onResponseReceived<BrowseResponse>> onBrowseResponse;
       std::shared_ptr<onResponseReceived<BrowseNextResponse>> onBrowseNextResponse;
@@ -202,7 +205,11 @@ namespace OWA {
       std::shared_ptr<onResponseReceived<CallResponse>> onCallResponse;
 
       ChannelSecurityToken securityToken;
-      std::shared_ptr<SymmetricCryptoContext> symmetricCryptoContext;
+      std::map<uint32_t, std::shared_ptr<SymmetricCryptoContext>> symmetricCryptoContexts;
+			
+			// security token ID used to send messages. It is the one which is returned in the latest OpenSecureChannel response form the server.
+			ChannelSecurityToken currentSendToken;
+
       std::mutex sendMutex;
       ByteString clientNonce;
 
@@ -245,7 +252,7 @@ namespace OWA {
 				throw OperationResult(StatusCode::BadDisconnect, "Transport layer is not connected");
 			}
 			readyToSend = false;
-      auto context = GetSymmetricCryptoContext(0);
+      auto context = GetSymmetricCryptoContext(currentSendToken.TokenId);
       codec->encode(message, *request, context);
 
 			std::function<OperationResult(std::weak_ptr<TcpTransport> wp, DataBufferPtr& buffer)> sendFunction;

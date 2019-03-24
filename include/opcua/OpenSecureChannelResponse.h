@@ -4,8 +4,7 @@
 
 namespace OWA {
   namespace OpcUa {
-    class OpenSecureChannelResponse {
-    public:
+    struct OpenSecureChannelResponse {
       OpenSecureChannelResponse() {
         serverProtocolVersion = 0;
       }
@@ -14,6 +13,8 @@ namespace OWA {
       ChannelSecurityToken securityToken;
       ByteString      serverNonce;
       uint32_t        serverProtocolVersion;
+			
+			typedef std::shared_ptr<OpenSecureChannelResponse> Ptr;
     };
   }
 }

@@ -36,6 +36,7 @@ namespace OWA {
 			// DateTime operator-(const DateTime& other) const;
 
       bool operator<(const DateTime& other);
+			bool operator>(const DateTime& other);
       bool operator==(const DateTime& other) const;
 
 			bool parse(const std::string& dateTimeAsString);

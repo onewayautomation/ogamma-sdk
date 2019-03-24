@@ -45,6 +45,7 @@ namespace OWA {
 
       virtual void setCallback(std::shared_ptr<onResponseReceived<CreateSessionResponse>>& f) = 0;
       virtual void setCallback(std::shared_ptr<onResponseReceived<ActivateSessionResponse>>& f) = 0;
+			virtual void setCallback(std::shared_ptr<onResponseReceived<CloseSessionResponse>>& f) = 0;
 
       virtual void setCallback(std::shared_ptr<onResponseReceived<BrowseResponse>>& f) = 0;
       virtual void setCallback(std::shared_ptr<onResponseReceived<BrowseNextResponse>>& f) = 0;
@@ -83,6 +84,7 @@ namespace OWA {
 
       virtual void sendRequest(std::shared_ptr<CreateSessionRequest>& request) = 0;
       virtual void sendRequest(std::shared_ptr<ActivateSessionRequest>& request) = 0;
+			virtual void sendRequest(std::shared_ptr<CloseSessionRequest>& request) = 0;
 
       virtual void sendRequest(std::shared_ptr<BrowseRequest>& request) = 0;
       virtual void sendRequest(std::shared_ptr<BrowseNextRequest>& request) = 0;

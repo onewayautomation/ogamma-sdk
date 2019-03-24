@@ -5,7 +5,6 @@
 #include "opcua/LocalizedText.h"
 #include "opcua/FindServersRequest.h"
 #include "opcua/FindServersResponse.h"
-#include "opcua/Configurable.h"
 #include "opcua/DiagnosticInfo.h"
 #include "opcua/OperationResult.h"
 #include "opcua/Transport.h"
@@ -35,7 +34,7 @@ namespace OWA {
 		// This type callback is called whenever connection state is changed:
 		typedef std::function <void(const std::string& endpointUrl, ConnectionState state, const OperationResult& result)> StateChangeCallback;
 
-		class Connection : public Configurable {
+		class Connection {
 		protected:
 		enum Action {
 			Nothing = 0,
@@ -105,6 +104,8 @@ namespace OWA {
 
       // Configuration settings defined what UA Server we want to connect to.
       void setConfiguration(const ClientConfiguration& config);
+			ClientConfiguration getConfiguration();
+
       // This function will be called to get a password used to encrypt certificate private key.
       void setPasswordCallbackFunction(std::function<std::string()> passwordCallback);
 
@@ -245,6 +246,7 @@ namespace OWA {
       bool onCloseSecureChannel(std::shared_ptr<CloseSecureChannelResponse>& response);
       bool onCreateSession(std::shared_ptr<CreateSessionResponse>& response);
       bool onActivateSession(std::shared_ptr<ActivateSessionResponse>& response);
+			bool onCloseSession(std::shared_ptr<CloseSessionResponse>& response);
       
 			bool onBrowse(std::shared_ptr<BrowseResponse>& response);
       bool onBrowseNext(std::shared_ptr<BrowseNextResponse>& response);
@@ -325,6 +327,7 @@ namespace OWA {
 			Action getNextConnectionAction(bool removeFromQueue = false);
 			void finishConnectionAttempt(ConnectionState newState, OperationResult result, bool needToScheduleReconnect);
 			void scheduleReconnect();
+			void scheduleSecureChannelRenewal();
       ConnectionState state;
 			ConnectionState desiredState;
 
