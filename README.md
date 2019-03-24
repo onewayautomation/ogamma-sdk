@@ -12,7 +12,8 @@ Includes header files and pre-built binaries for Visual Studio 2017.
 The key differentiators of this SDK from other existing in the market C++ SDKs will be:
 
  - Designed following "Low Code" philosophy: applications using it would need to write minial code. Example of writing value to single node:
-````C++    WriteRequest::Ptr req(new WriteRequest(WriteValue (NodeId("Demo.Static.Scalar.UInt32", 2), DataValue((uint32_t) 123))));
+````C++    
+    WriteRequest::Ptr req(new WriteRequest(WriteValue (NodeId("Demo.Static.Scalar.UInt32", 2), DataValue((uint32_t) 123))));
     auto writeResult = connection->send(req).get();
     if (writeResult->isGood())
 ````    
