@@ -45,7 +45,7 @@ namespace OWA {
       void save(const std::string& content, const boost::filesystem::path& fileName);
       void save(const std::vector<uint8_t>& content, const boost::filesystem::path& fileName);
       std::string getPrivateKeyPassword();
-      void loadCertificate(X509Certificate& certificate, std::shared_ptr<Botan::Private_Key>& privateKey);
+      void loadCertificate(SecurityPolicyId securityPolicyId, X509Certificate& certificate, std::shared_ptr<Botan::Private_Key>& privateKey);
       std::vector<Botan::byte> encrypt(uint8_t* data, uint32_t length);
     };
   }

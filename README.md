@@ -67,13 +67,13 @@ Source code is stored in private repository. Technical preview version is ready 
   - CloseSecureChannel
 - Communication in secured mode and infrastructure to support it:
   - Generating self-signed root certificate and application instance certificate signed by it;
-  - Creation of secure channel in secured mode (sign and encryption).
+  - Creation of secure channel in secured mode (sign and encryption). Currently only security policy Basic256Sha256 is supported.
 - OPC Binary encoding
   - Implemented for most data types, which are required to send requests and receive responses for functionality listed above.
   - Encoding and Decoding of complex data type values can be handled by the user application, so no need to modify the SDK to support complex data types.
 ## Road-map
 ### Version 1.0
-Estimated time of delivery - second quorter of 2019.
+Estimated time of delivery - second quarter of 2019.
 - Client side features only.
 - Polish features listed in section "Current status of the project"
 - Add support for services required to have "minimum viable product":

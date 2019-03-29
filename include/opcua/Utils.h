@@ -73,6 +73,7 @@ namespace OWA {
 			std::string toString(const OpcUa::EndpointDescription& ed);
 			std::string toString(const OpcUa::UserIdentityTokenType uitt);
 			std::string toString(const OpcUa::ConnectionState state, const std::string& locale = "en");
+			std::string toString(const OpcUa::ByteString& value);
 			
 			std::string currentTimestamp();
 			std::string toLower(const std::string& str);

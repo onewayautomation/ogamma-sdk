@@ -1,6 +1,6 @@
 #pragma once
 #include <botan/x509self.h>
-
+#include <map>
 #include "opcua/Enums.h"
 
 namespace OWA {
@@ -13,8 +13,8 @@ namespace OWA {
       std::string crl;
       std::string issuers;
       std::string issuersCrl;
-      std::string publicKeyFileName;
-      std::string privateKeyFileName;
+      std::map<std::string, std::string> publicKeyFileName;
+			std::map<std::string, std::string> privateKeyFileName;
       bool generate;
       Botan::X509_Cert_Options options;
     };
