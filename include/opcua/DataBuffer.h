@@ -4,16 +4,18 @@
 #include <memory>
 #include <functional>
 #include "opcua/Transport.h"
+#include "opcua/ByteString.h"
 
 namespace OWA {
   namespace OpcUa {
 		class Transport;
-
+		class EncodedExtensionObject;
 		class DataBuffer {
 			friend Transport;
+			friend EncodedExtensionObject;
     public:
 			DataBuffer();
-
+			DataBuffer(const ByteString& other);
 			// Reserves buffer size, and keeps size of buffer as 0.
 			DataBuffer(uint32_t count);
 			// Initializes buffer with "count" elements each equal to "value". Size of the buffer becomes equal to count.

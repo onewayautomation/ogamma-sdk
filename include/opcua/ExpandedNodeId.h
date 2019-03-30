@@ -14,6 +14,8 @@ namespace OWA {
       static ExpandedNodeId getId(RequestResponseTypeId id);
       RequestResponseTypeId getTypeId();
       bool operator==(const ExpandedNodeId other) const;
+			bool operator==(const Ids::NumericNodeId id) const;
+			bool operator==(const uint32_t id) const;
       uint32_t    serverIndex;
       std::string namespaceURI;
       NodeId      nodeId;

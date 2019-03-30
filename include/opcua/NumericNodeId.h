@@ -23,7 +23,10 @@ namespace OWA { namespace OpcUa {
 
 			DataChangeNotification_Encoding_DefaultBinary = 811, 
 			NotificationData_Event,
-			NotificationData_StatusChange
+			NotificationData_StatusChange,
+			ServerStatusDataType = 864,
+			ServerStatusType = 2138,
+			ServerStatus = 2256
     };
 
     const uint8_t BinaryOffset = 2;

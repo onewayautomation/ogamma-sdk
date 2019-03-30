@@ -11,6 +11,7 @@ namespace OWA {
   namespace OpcUa {
       class BinaryCodec : public Codec {
       public:
+				BinaryCodec();
         BinaryCodec(std::shared_ptr<Cryptor>& cryptor);
         void encode(DataBufferPtr& buffer, HelloMessage& body);
 
@@ -167,7 +168,6 @@ namespace OWA {
 				virtual void encode(DataBufferPtr& buffer, const WriteValue& value);
 				virtual void decode(DataBufferPtr& buffer, CallMethodResult& value);
 
-      protected:
         void encode(DataBufferPtr& buffer, const uint8_t& value);
         void encode(DataBufferPtr& buffer, const int8_t& value);
 
@@ -290,6 +290,7 @@ namespace OWA {
           }
         }
 
+			protected:
         std::shared_ptr<Cryptor> cryptor;
         uint32_t sequenceNumber;
       };
