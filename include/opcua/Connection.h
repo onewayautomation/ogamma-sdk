@@ -29,6 +29,11 @@
 #include <cassert>
 #include <set>
 
+#ifdef WIN32
+#pragma comment(lib, "OpcUaSdk.lib")
+#pragma comment(lib, "botan.lib")
+#endif
+
 namespace OWA {
   namespace OpcUa {
 		// This type callback is called whenever connection state is changed:

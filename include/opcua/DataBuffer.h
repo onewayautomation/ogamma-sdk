@@ -9,7 +9,7 @@
 namespace OWA {
   namespace OpcUa {
 		class Transport;
-		class EncodedExtensionObject;
+		struct EncodedExtensionObject;
 		class DataBuffer {
 			friend Transport;
 			friend EncodedExtensionObject;

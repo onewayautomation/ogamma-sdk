@@ -204,7 +204,6 @@ namespace OWA {
 
       std::shared_ptr<onResponseReceived<CallResponse>> onCallResponse;
 
-      ChannelSecurityToken securityToken;
       std::map<uint32_t, std::shared_ptr<SymmetricCryptoContext>> symmetricCryptoContexts;
 			
 			// security token ID used to send messages. It is the one which is returned in the latest OpenSecureChannel response form the server.
@@ -248,6 +247,7 @@ namespace OWA {
 
 			if (stopped_ || !socket_ || state != Connected)
 			{
+				readyToSend = true;
 				lk.unlock();
 				throw OperationResult(StatusCode::BadDisconnect, "Transport layer is not connected");
 			}
