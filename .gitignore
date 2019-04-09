@@ -3,3 +3,7 @@
 ################################################################################
 
 /examples/.vs
+/examples/PKI
+/examples/memory_leak_report.txt
+/docs
+/examples/x64

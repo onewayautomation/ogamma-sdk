@@ -238,11 +238,21 @@ namespace OWA {
 			message->setTransport(r);
 			message->setSecurityRequestId(request->header.getRequestId());
 
-			// Wait until previous request is sent:
+			// Wait until previous request is sent, but no longer than wait time:
+      DateTime startTime;
+
 			std::unique_lock<std::mutex> lk(sendMutex);
-			sendConditionVariable.wait(lk, [this] 
+			sendConditionVariable.wait(lk, [this, &startTime] 
 			{
-				return this->readyToSend;
+        if (this->readyToSend)
+          return true;
+        if (!startTime.isSet())
+          startTime = DateTime::now();
+        else
+          if ((startTime + std::chrono::milliseconds(1000)) < DateTime::now())
+            return true;
+          else
+            return false;
 			});
 
 			if (stopped_ || !socket_ || state != Connected)
@@ -252,13 +262,12 @@ namespace OWA {
 				throw OperationResult(StatusCode::BadDisconnect, "Transport layer is not connected");
 			}
 			readyToSend = false;
-      auto context = GetSymmetricCryptoContext(currentSendToken.TokenId);
-      codec->encode(message, *request, context);
-
-			std::function<OperationResult(std::weak_ptr<TcpTransport> wp, DataBufferPtr& buffer)> sendFunction;
 
       // Start an asynchronous operation to send the request message:
-			try {
+			try 
+      {
+        auto context = GetSymmetricCryptoContext(currentSendToken.TokenId);
+        codec->encode(message, *request, context);
 				if (request->getTypeId() == RequestResponseTypeId::CloseSecureChannelRequest) 
 				{
 					std::weak_ptr<TcpTransport> wp = selfRef;

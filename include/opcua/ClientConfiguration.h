@@ -59,8 +59,8 @@ namespace OWA {
 			uint32_t timeoutGeneral;
 
 			// Default connection properties:
-			std::string defaultDisoveryUrl = "opc.tcp://localhost:4840";
-			std::string defaultServerEndpointUrl = "opc.tcp://localhost:48010";
+      std::string defaultDiscoveryUrl; // = "opc.tcp://localhost:4840";
+      std::string defaultServerEndpointUrl; // = "opc.tcp://localhost:48010";
 
 			uint32_t maxReferencesPerNode;
 			

@@ -52,19 +52,12 @@ namespace OWA {
 				return StatusCodeUtil::toString(code);
 			}
 
-			void initThreadPool(int numberOfThreads = 1);
-			void closeThreadPool();
+      void initSdk(int numberOfIoThreads = 1, int numberOfCallbackThreads = 1);
+
 			// Returns time given ms from now.
 			std::chrono::time_point<std::chrono::steady_clock> getTimeNowPlusMilliSeconds(uint32_t ms);
-			std::shared_ptr<ThreadPool> getThreadPool();
-			
-			void initCallbackThreadPool(int numberOfThreads = 1);
-			std::shared_ptr<ThreadPool> getCallbackThreadPool();
-			void closeCallbackThreadPool();
 
 			std::shared_ptr<Timer> getTimer();
-			std::shared_ptr<boost::asio::io_service> claimIoService();
-			void releaseIoService(std::shared_ptr<boost::asio::io_service>& service);
 
 			void closeSdk();
 
@@ -84,6 +77,16 @@ namespace OWA {
 
 			std::chrono::system_clock::time_point convert(const boost::posix_time::ptime& from);
 
+      void initThreadPool(int numberOfThreads = 1);
+      std::shared_ptr<ThreadPool> getThreadPool();
+			void closeThreadPool();			
+
+			void initCallbackThreadPool(int numberOfThreads = 1);
+			std::shared_ptr<ThreadPool> getCallbackThreadPool();
+			void closeCallbackThreadPool();
+
+			std::shared_ptr<boost::asio::io_service> claimIoService();
+			void releaseIoService(std::shared_ptr<boost::asio::io_service>& service);
 		}
 	}
 }

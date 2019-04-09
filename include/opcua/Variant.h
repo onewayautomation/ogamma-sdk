@@ -226,8 +226,34 @@ namespace OWA {
 			// Methods
 			void clear();
 			std::string toString() const;
+			
+			// converts to float is possible, otherwise throws exception:
+			float toFloat() const;
 
+			// Conversion operators. If type of isArray are not matching, throw exception.
+			operator bool() const;
+			operator int8_t() const;
+			operator uint8_t() const;
+			operator int16_t() const;
+			operator uint16_t() const;
+			operator int32_t() const;
+			operator uint32_t() const;
+			operator int64_t() const;
+			operator uint64_t() const;
 			operator float() const;
+			operator double() const;
+			operator std::string() const;
+			operator DateTime() const;
+			operator Guid() const;
+			operator ByteString() const;
+			operator XmlElement() const;
+			operator NodeId() const;
+			operator ExpandedNodeId() const;
+			operator StatusCode() const;
+			operator QualifiedName() const; 
+			operator LocalizedText() const;
+			operator ExtensionObject::Ptr() const;
+			operator DiagnosticInfo() const;
 
 			struct ConversionException 
 			{

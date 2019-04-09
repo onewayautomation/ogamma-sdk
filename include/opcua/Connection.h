@@ -181,7 +181,7 @@ namespace OWA {
 				std::bind(&Connection::onBrowseNextResponse, std::placeholders::_1, std::placeholders::_2));
 
 			std::future<std::shared_ptr<CreateSubscriptionResponse>> send(std::shared_ptr<CreateSubscriptionRequest>& request,
-				NotificationObserver& notificationCallback,
+				NotificationObserver& notificationCallback, bool forceCreate,
 				onResponseCallback<CreateSubscriptionRequest, CreateSubscriptionResponse> f =
 				std::bind(&Connection::onCreateSubscriptionResponse, std::placeholders::_1, std::placeholders::_2) );
 			
@@ -209,7 +209,7 @@ namespace OWA {
 				onResponseCallback<RepublishRequest, RepublishResponse> f =
 				std::bind(&Connection::onRepublishResponse, std::placeholders::_1, std::placeholders::_2));
 
-			std::future<std::shared_ptr<CreateMonitoredItemsResponse>> send(std::shared_ptr<CreateMonitoredItemsRequest>& request,
+			std::future<std::shared_ptr<CreateMonitoredItemsResponse>> send(std::shared_ptr<CreateMonitoredItemsRequest>& request, bool forceCreate,
 				onResponseCallback<CreateMonitoredItemsRequest, CreateMonitoredItemsResponse> f =
 				std::bind(&Connection::onCreateMonitoredItemsResponse, std::placeholders::_1, std::placeholders::_2));
 
@@ -327,7 +327,7 @@ namespace OWA {
 			std::string GetName();
 
     protected:
-			void initializeConnectionActions();
+			OperationResult initializeConnectionActions();
 			void addConnectionAction(Action action, bool toTheFront = false);
 			Action getNextConnectionAction(bool removeFromQueue = false);
 			void finishConnectionAttempt(ConnectionState newState, OperationResult result, bool needToScheduleReconnect);
@@ -404,7 +404,7 @@ namespace OWA {
 			// So the connection maintains internal maps of originally returned handles to currently up to date ids, so the application can still use originally 
 			// returned ids.
 
-			std::mutex mutexIdMaps;
+			std::recursive_mutex mutexIdMaps;
 			// Maps client handle of monitored items to server assigned handle.
 			std::map<uint32_t, uint32_t> mapItemClientIdToServerId;
 			std::map<uint32_t, std::map<uint32_t, uint32_t>> mapItemServerIdToClientId;
@@ -426,8 +426,9 @@ namespace OWA {
 			void scheduleStateChangeCallback(const std::string& endpointUrl, ConnectionState newState, const OperationResult& result);
 
 			ConnectionState stateOfSecureChannel;
-			ConnectionState stateOfSession;
+			std::atomic<ConnectionState> stateOfSession;
 			std::atomic<bool> isShutDown;
+      std::atomic<bool> isReconnecting;
     };
 
     // Implementation of the send (called from "send" method):

@@ -189,7 +189,14 @@ namespace OWA {
 				done = true;
 				lock.unlock();
 				cond.notify_all();
-				worker.join();
+        try
+        {
+          worker.join();
+        }
+        catch (const std::exception&)
+        {
+          //TODO
+        }
 				events.clear();
 				time_events.clear();
 			}
