@@ -92,10 +92,13 @@ For detailed licensing information please refer [Developer's Guide, section on l
 
 ## How to use
 
-First, dependency projects need to be retrieved from GitHub and built. To simplify this task, the SDK includes script ``install-opcuasdk-dependencies.cmd``. If you run it from command line console, it should pull all required files and build them. Note that is takes significant time to build them.
-
-More details on prerequisites and how to use the SDK can be found in the Developer's Guide for the SDK (currently under development, avalable here: [OPC UA C++ SDK Developer's Guide](https://onewayautomation.com/opcua-sdk-docs/html/index.html) )
+- Open windows command line console and navigate to the root folder where source code repositories will be located.
+- Clone the project: ``git clone https://github.com/onewayautomation/1WaOpcUaSdk.git``
+- Navigate to the folder with OPC UA SDK: ``cd 1WaOpcUaSdk``
+- Pull and build dependencies by running of the script ``install-opcuasdk-dependencies.cmd``. Note that is takes significant time to build them.
 
 Distributables of the SDK include sample **HelloWorld** project located under folder **examples**, which can be used as a base for your first project.
+
+More details on prerequisites and how to use the SDK can be found in the Developer's Guide for the SDK (currently under development, avalable here: [OPC UA C++ SDK Developer's Guide](https://onewayautomation.com/opcua-sdk-docs/html/index.html) )
 
 Please [contacts us](https://onewayautomation.com/index.php/contact-us) if you have questions, issues on the SDK or want to purchase licenses for its commercial use.
