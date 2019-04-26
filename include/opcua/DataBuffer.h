@@ -40,11 +40,13 @@ namespace OWA {
 			char getFlag();
 			void clear();
 			bool incrementChunkNumber();
+      uint32_t getNumberOfChunks();
 			uint32_t getSecurityRequestId();
 			void setTransport(std::shared_ptr<Transport>& transport);
 			void setSecurityRequestId(uint32_t id);
 			void push_back(std::shared_ptr<DataBuffer>& other);
-
+      void setSequenceHeaderPosition();
+      uint32_t getSequenceHeaderPosition();
     protected:
 			void init();
       std::vector<uint8_t> buffer; 
@@ -54,6 +56,7 @@ namespace OWA {
 			uint32_t chunkNumber;
 			char messageFlag;
 			uint32_t securityRequestId;
+      uint32_t sequenceHeaderPosition;
     };
 
     typedef std::shared_ptr<DataBuffer> DataBufferPtr;

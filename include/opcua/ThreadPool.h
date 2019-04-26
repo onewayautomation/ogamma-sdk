@@ -14,8 +14,8 @@
 #include <future>
 #include <functional>
 #include <stdexcept>
-
 #include <iostream>
+#include "opcua/CriticalError.h"
 
 namespace OWA {
 	namespace OpcUa {
@@ -47,7 +47,7 @@ namespace OWA {
 		{
 			if (threads < 1)
 			{
-				throw "ThreadPool: Invalid argument ""threads""";
+				throw CriticalErrorException("ThreadPool: Invalid argument ""threads""");
 			}
 			for (size_t i = 0; i < threads; ++i)
 				workers.emplace_back(
@@ -78,37 +78,6 @@ namespace OWA {
 				);
 		}
 
-		//// add new work item to the pool
-		//template<class F, class... Args>
-		//void ThreadPool::enqueue(F&& f, Args&&... args)
-		//	-> std::future<typename std::result_of<F(Args...)>::type>
-		//{
-		//	using return_type = typename std::result_of<F(Args...)>::type;
-
-		//	std::function<void()> func = std::bind(std::forward<F>(f), std::forward<Args>(args)...);
-
-		//	std::bind(std::forward<F>(f), std::forward<Args>(args)...)
-		//		//);
-
-		//	// std::future<return_type> res = task->get_future();
-		//	//std::shared_ptr<std::function<void()>> func(new std::function<void()>([task]() mutable {
-		//	//	(*task)();
-		//	//	task.reset();
-		//	//}));
-
-		//	{
-		//		std::unique_lock<std::mutex> lock(queue_mutex);
-
-		//		// don't allow enqueueing after stopping the pool
-		//		if (stop)
-		//			throw std::runtime_error("enqueue on stopped ThreadPool");
-
-		//		tasks.emplace(func);
-		//	}
-		//	condition.notify_one();
-		//	return;
-		//}
-
 		template<class F, class... Args>
 		auto ThreadPool::enqueue(F&& f, Args&&... args)
 			-> std::future<typename std::result_of<F(Args...)>::type>
@@ -130,7 +99,7 @@ namespace OWA {
 
 				// don't allow enqueueing after stopping the pool
 				if (stop)
-					throw std::runtime_error("enqueue on stopped ThreadPool");
+					throw CriticalErrorException("enqueue on stopped ThreadPool");
 
 				tasks.emplace(func);
 			}

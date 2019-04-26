@@ -76,52 +76,54 @@ namespace OWA {
       //template<typename RequestType, typename ResponseType>
       //virtual void sendRequest(std::shared_ptr<RequestType>& request, onResponseReceived<ResponseType> f) = 0;
       // So method for each type is created:
-      virtual void sendRequest(std::shared_ptr<OpenSecureChannelRequest>& request) = 0;
-      virtual void sendRequest(std::shared_ptr<CloseSecureChannelRequest>& request) = 0;
+      virtual bool sendRequest(std::shared_ptr<OpenSecureChannelRequest>& request) = 0;
+      virtual bool sendRequest(std::shared_ptr<CloseSecureChannelRequest>& request) = 0;
 
-      virtual void sendRequest(std::shared_ptr<FindServersRequest>& request) = 0;
-      virtual void sendRequest(std::shared_ptr<GetEndpointsRequest>& request) = 0;
+      virtual bool sendRequest(std::shared_ptr<FindServersRequest>& request) = 0;
+      virtual bool sendRequest(std::shared_ptr<GetEndpointsRequest>& request) = 0;
 
-      virtual void sendRequest(std::shared_ptr<CreateSessionRequest>& request) = 0;
-      virtual void sendRequest(std::shared_ptr<ActivateSessionRequest>& request) = 0;
-			virtual void sendRequest(std::shared_ptr<CloseSessionRequest>& request) = 0;
+      virtual bool sendRequest(std::shared_ptr<CreateSessionRequest>& request) = 0;
+      virtual bool sendRequest(std::shared_ptr<ActivateSessionRequest>& request) = 0;
+			virtual bool sendRequest(std::shared_ptr<CloseSessionRequest>& request) = 0;
 
-      virtual void sendRequest(std::shared_ptr<BrowseRequest>& request) = 0;
-      virtual void sendRequest(std::shared_ptr<BrowseNextRequest>& request) = 0;
-      virtual void sendRequest(std::shared_ptr<TranslateBrowsePathsToNodeIdsRequest>& request) = 0;
+      virtual bool sendRequest(std::shared_ptr<BrowseRequest>& request) = 0;
+      virtual bool sendRequest(std::shared_ptr<BrowseNextRequest>& request) = 0;
+      virtual bool sendRequest(std::shared_ptr<TranslateBrowsePathsToNodeIdsRequest>& request) = 0;
 
-      virtual void sendRequest(std::shared_ptr<ReadRequest>& request) = 0;
-      virtual void sendRequest(std::shared_ptr<WriteRequest>& request) = 0;
-      virtual void sendRequest(std::shared_ptr<HistoryReadRequest>& request) = 0;
-      virtual void sendRequest(std::shared_ptr<HistoryUpdateRequest>& request) = 0;
+      virtual bool sendRequest(std::shared_ptr<ReadRequest>& request) = 0;
+      virtual bool sendRequest(std::shared_ptr<WriteRequest>& request) = 0;
+      virtual bool sendRequest(std::shared_ptr<HistoryReadRequest>& request) = 0;
+      virtual bool sendRequest(std::shared_ptr<HistoryUpdateRequest>& request) = 0;
 
-      virtual void sendRequest(std::shared_ptr<CreateSubscriptionRequest>& request) = 0;
-      virtual void sendRequest(std::shared_ptr<ModifySubscriptionRequest>& request) = 0;
-      virtual void sendRequest(std::shared_ptr<DeleteSubscriptionsRequest>& request) = 0;
-      virtual void sendRequest(std::shared_ptr<TransferSubscriptionsRequest>& request) = 0;
-      virtual void sendRequest(std::shared_ptr<SetPublishingModeRequest>& request) = 0;
-      virtual void sendRequest(std::shared_ptr<PublishRequest>& request) = 0;
-      virtual void sendRequest(std::shared_ptr<RepublishRequest>& request) = 0;
+      virtual bool sendRequest(std::shared_ptr<CreateSubscriptionRequest>& request) = 0;
+      virtual bool sendRequest(std::shared_ptr<ModifySubscriptionRequest>& request) = 0;
+      virtual bool sendRequest(std::shared_ptr<DeleteSubscriptionsRequest>& request) = 0;
+      virtual bool sendRequest(std::shared_ptr<TransferSubscriptionsRequest>& request) = 0;
+      virtual bool sendRequest(std::shared_ptr<SetPublishingModeRequest>& request) = 0;
+      virtual bool sendRequest(std::shared_ptr<PublishRequest>& request) = 0;
+      virtual bool sendRequest(std::shared_ptr<RepublishRequest>& request) = 0;
 
-      virtual void sendRequest(std::shared_ptr<CreateMonitoredItemsRequest>& request) = 0;
-      virtual void sendRequest(std::shared_ptr<ModifyMonitoredItemsRequest>& request) = 0;
-      virtual void sendRequest(std::shared_ptr<DeleteMonitoredItemsRequest>& request) = 0;
-      virtual void sendRequest(std::shared_ptr<SetMonitoringModeRequest>& request) = 0;
-      virtual void sendRequest(std::shared_ptr<SetTriggeringRequest>& request) = 0;
+      virtual bool sendRequest(std::shared_ptr<CreateMonitoredItemsRequest>& request) = 0;
+      virtual bool sendRequest(std::shared_ptr<ModifyMonitoredItemsRequest>& request) = 0;
+      virtual bool sendRequest(std::shared_ptr<DeleteMonitoredItemsRequest>& request) = 0;
+      virtual bool sendRequest(std::shared_ptr<SetMonitoringModeRequest>& request) = 0;
+      virtual bool sendRequest(std::shared_ptr<SetTriggeringRequest>& request) = 0;
 
-      virtual void sendRequest(std::shared_ptr<CallRequest>& request) = 0;
+      virtual bool sendRequest(std::shared_ptr<CallRequest>& request) = 0;
 
 	    virtual void connect(const std::string& endpointUrl, uint32_t timeoutInMilliseconds = 5000) = 0;
-      virtual void disconnect(bool doCallBack = true) = 0;
+      virtual std::shared_future<void> disconnect() = 0;
 
       virtual void listen(const boost::any& context, const std::string& url) = 0;
       virtual void stopListen(const boost::any& context) = 0;
 
 			virtual std::weak_ptr<Transport> getSelfRef() = 0;
 
-			virtual void sendChunkIfFull() = 0;
+			virtual bool sendChunkIfFull() = 0;
 			virtual void checkTotalMessageSize(uint32_t bytesToSend) = 0;
 			virtual uint32_t getMaxSendChunkCount() = 0;
+      // Added for testing secure channel renewals
+      virtual ChannelSecurityToken getSecureChannelToken() = 0;
     };
   }
 }

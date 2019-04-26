@@ -89,6 +89,8 @@ namespace OWA {
     struct GetEndpointsResponse {
       ResponseHeader header;
       std::vector<EndpointDescription> endpoints;
+
+      typedef std::shared_ptr<GetEndpointsResponse> Ptr;
     };
   }
 }

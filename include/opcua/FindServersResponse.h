@@ -8,6 +8,8 @@ namespace OWA {
     public:
       ResponseHeader header;
       std::vector<ApplicationDescription> servers;
+
+      typedef std::shared_ptr<FindServersResponse> Ptr;
     };
   }
 }

@@ -6,13 +6,15 @@
 
 namespace OWA {
   namespace OpcUa {
-		struct MonitoringParameters {
-			MonitoringParameters() {
-				clientHandle = UndefinedInt;
-				samplingInterval = -1;
-				queueSize = 1;
-				discurdOldest = true;
-			}
+		struct MonitoringParameters 
+    {
+      MonitoringParameters(Duration samplingInterval = -1, uint32_t queueSize = 2) 
+      {
+        clientHandle = UndefinedInt;
+        this->samplingInterval = samplingInterval;
+        this->queueSize = queueSize;
+        discurdOldest = true;
+      }
 			uint32_t clientHandle;
 			Duration samplingInterval; // 0 - fastest; -1  - the same as Publishing interval
 			ExtensionObject::Ptr filter;
@@ -24,7 +26,9 @@ namespace OWA {
 			MonitoredItemCreateRequest() {
 				monitoringMode = MonitoringMode::reporting;
 			}
-			MonitoredItemCreateRequest(const NodeId& nodeId): itemToMonitor(nodeId){
+			MonitoredItemCreateRequest(const NodeId& nodeId, Duration samplingInterval = -1, uint32_t queueSize = 2): 
+        itemToMonitor(nodeId), monitoringParameters(samplingInterval, queueSize)
+      {
 				monitoringMode = MonitoringMode::reporting;
 			}
 			ReadValueId itemToMonitor;

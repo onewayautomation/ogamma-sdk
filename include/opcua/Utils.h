@@ -67,7 +67,8 @@ namespace OWA {
 			std::string toString(const OpcUa::UserIdentityTokenType uitt);
 			std::string toString(const OpcUa::ConnectionState state, const std::string& locale = "en");
 			std::string toString(const OpcUa::ByteString& value);
-			
+      std::string toString(const OpcUa::SecurityTokenRequestType requestType);
+
 			std::string currentTimestamp();
 			std::string toLower(const std::string& str);
 			bool startsWith(const std::string& str, const std::string& subs);
@@ -87,6 +88,8 @@ namespace OWA {
 
 			std::shared_ptr<boost::asio::io_service> claimIoService();
 			void releaseIoService(std::shared_ptr<boost::asio::io_service>& service);
+
+      std::string getRequestName(const RequestResponseTypeId typeId);
 		}
 	}
 }

@@ -182,18 +182,10 @@ namespace OWA {
     };
 
     enum ConnectionState : uint8_t {
-      // Disconnected (initial state, or state as result of normal disconnect call)
-      Disconnected = 0, 
-      Connecting,
-      // Connection is established:
-      Connected,
-      // Attempt to connect/reconnect failed:
-      CouldNotConnect,
-      // Disconnected as result of communication error:
-      CommunicationError,
-
-			// Disconnection is in progress:
-      Disconnecting
+      Disconnected = 0, // Disconnected (initial state, or state as result of normal disconnect call)
+      Connecting = 1,       // Connection is in progress
+      Connected = 2,        // Connection is established
+      Disconnecting = 3     // Disconnection is in progress
     };
     enum struct SecurityPolicyId : uint8_t {
       Invalid = 0,

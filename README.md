@@ -86,20 +86,16 @@ TBD.
 ## License and Copyright
 Copyright 2018-2019, One-Way Aautomation Inc.
 
-Versions prior 1.0 can be distributed and used under MIT license terms (https://opensource.org/licenses/MIT)
+For open source projects, research, education and non-commercial organizations, as well as for personal usage by developers free binary license is available.
 
-For versions starting from 1.0 licensing terms will change. Various options are under consideration, open source and commercial, such as:
-- Dual License:
-  - GPL 
-  - Commercial
-- MIT license (unrestricted).
-- Different licensing for different editions:
-  - Community - free
-  - Professional - Commercial
-
-Final decision will depend on how the project is perceived by OPC UA community.
-
-For open source projects, for non-commercial organizations, as well as for personal usage and educational purposes binary redistributables will be free, guaranteed.
+For detailed licensing information please refer [Developer's Guide, section on licensing](https://onewayautomation.com/opcua-sdk-docs/html/introduction.html#licensing).
 
 ## How to use
-For instructions how to use it please visit home page for the sample [OPC UA Test Client project:](https://github.com/RavilN/OpcUaTestClient)
+
+First, dependency projects need to be retrieved from GitHub and built. To simplify this task, the SDK includes script ``install-opcuasdk-dependencies.cmd``. If you run it from command line console, it should pull all required files and build them. Note that is takes significant time to build them.
+
+More details on prerequisites and how to use the SDK can be found in the Developer's Guide for the SDK (currently under development, avalable here: [OPC UA C++ SDK Developer's Guide](https://onewayautomation.com/opcua-sdk-docs/html/index.html) )
+
+Distributables of the SDK include sample **HelloWorld** project located under folder **examples**, which can be used as a base for your first project.
+
+Please [contacts us](https://onewayautomation.com/index.php/contact-us) if you have questions, issues on the SDK or want to purchase licenses for its commercial use.
