@@ -1,4 +1,7 @@
 call setup-environment.cmd
+SET SCRIPT_PATH=%~dp0
+for %%i in ("%~dp0.") do SET "SCRIPT_PATH=%%~fi"
+SET REPO_BASE_FOLDER=%SCRIPT_PATH%\..
 
 SET TAG_BOTAN=2.9.0
 set PATH_BOTAN=botan
