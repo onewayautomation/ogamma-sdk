@@ -96,6 +96,7 @@ For detailed licensing information please refer [Developer's Guide, section on l
 - Clone the project: ``git clone https://github.com/onewayautomation/1WaOpcUaSdk.git``
 - Navigate to the folder with OPC UA SDK: ``cd 1WaOpcUaSdk``
 - Pull and build dependencies by running of the script ``install-opcuasdk-dependencies.cmd``. Note that is takes significant time to build them.
+- SDK binary library files for Visual Studio 2017 are available to download from https://onewayautomation.com/opcua-binaries/opcua-sdk-0.8.0.zip. Content of zip file should be extracted into sub-folder ``lib`` of the SDK source code repository.
 
 Distributables of the SDK include sample **HelloWorld** project located under folder **examples**, which can be used as a base for your first project.
 
