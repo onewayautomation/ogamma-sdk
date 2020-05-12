@@ -2,11 +2,11 @@
 SET SCR_PATH=%~dp0
 for %%i in ("%~dp0.") do SET "SCR_PATH=%%~fi"
 
-SET SDK_FOLDER=%SCR_PATH%\..\1WaOpcUaSdk
+SET SDK_FOLDER=%SCR_PATH%\..\ogamma-sdk
 SET REPO_BASE_FOLDER=%SCRIPT_PATH%\..
 
 IF EXIST %SDK_FOLDER% GOTO END_SDK_CLONE
-git clone --recursive --depth 3 https://github.com/onewayautomation/1WaOpcUaSdk.git %SDK_FOLDER%
+git clone --recursive --depth 3 https://github.com/onewayautomation/ogamma-sdk.git %SDK_FOLDER%
 :END_SDK_CLONE
 
 call %SCR_PATH%\setup-environment.cmd
@@ -28,8 +28,5 @@ PUSHD %REPO_BASE_FOLDER%
 IF EXIST Catch2 GOTO END_CATCH2
 git clone  --branch v2.11.0 https://github.com/catchorg/Catch2.git
 :END_CATCH2
-
-
-
 
 POPD

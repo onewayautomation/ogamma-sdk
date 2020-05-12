@@ -9,6 +9,10 @@ int main (int argc, char** argv)
   const std::string value1 = "Hello World!";
   const std::string value2 = "Hi there!";
   bool succeeded = false;
+
+  // initSdk must be called in order to initialize logging subsystem:
+  OWA::OpcUa::Utils::initSdk();
+
   {
     auto connection = Connection::create("opc.tcp://opcuaserver.com:48010", true);
     if (connection->connect().get().isGood())
