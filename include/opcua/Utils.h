@@ -13,6 +13,8 @@
 #include <chrono>
 #include <boost/date_time/posix_time/ptime.hpp>
 
+#include <spdlog/spdlog.h>
+
 namespace OWA {
 	namespace OpcUa {
 		class Timer;
@@ -44,19 +46,23 @@ namespace OWA {
 
 			std::vector<ApplicationDescription> selectServers(std::vector<ApplicationDescription>& applications);
 
-			inline std::string toString(StatusCode code) {
-				return StatusCodeUtil::toString(code);
+			inline std::string toString(StatusCode code, bool includeCode = false) {
+				return StatusCodeUtil::toString(code, includeCode);
 			}
 
-			inline std::string statusToString(StatusCode code) {
-				return StatusCodeUtil::toString(code);
+			inline std::string statusToString(StatusCode code, bool includeCode = false) {
+				return StatusCodeUtil::toString(code, includeCode);
 			}
 
-      void initSdk(int numberOfIoThreads = 1, int numberOfCallbackThreads = 1);
+      void initSdk(const std::string& logFileName = "./data/logs/OpcUaSdk-client-Log.txt", uint16_t level = 0,
+        int numberOfIoThreads = 1, int numberOfCallbackThreads = 2, size_t maxFileSize = 8*1024*1024, size_t maxFileNumber = 10);
+
+      void initSdk(int numberOfIoThreads, int numberOfCallbackThreads, const std::string& logFileName, uint16_t level, 	
+				 size_t maxFileSize, size_t maxFileNumber);
 
 			// Returns time given ms from now.
 			std::chrono::time_point<std::chrono::steady_clock> getTimeNowPlusMilliSeconds(uint32_t ms);
-
+			
 			std::shared_ptr<Timer> getTimer();
 
 			void closeSdk();
@@ -80,6 +86,7 @@ namespace OWA {
 
       void initThreadPool(int numberOfThreads = 1);
       std::shared_ptr<ThreadPool> getThreadPool();
+
 			void closeThreadPool();			
 
 			void initCallbackThreadPool(int numberOfThreads = 1);
@@ -89,7 +96,22 @@ namespace OWA {
 			std::shared_ptr<boost::asio::io_service> claimIoService();
 			void releaseIoService(std::shared_ptr<boost::asio::io_service>& service);
 
-      std::string getRequestName(const RequestResponseTypeId typeId);
+      std::string getName(const RequestResponseTypeId typeId);
+
+			// Reads content of the file into string.
+			// Returns -1 in case of error, or length of the string in case of success.
+			int32_t readFileToString(const std::string& fileName, std::string& content);
+			std::string saveStringToFile(const std::string& value, const std::string& fileName);
+
+			void copyFileIfDoesNotExist(const std::string& defaultFile, const std::string& targetFile);
+
+			std::string getHostName();
+
+			std::string toString(NodeClass);
+
+			std::string toString(spdlog::level::level_enum logLevel);
+
+			bool fileExists(const std::string& fileName);
 		}
 	}
 }

@@ -6,6 +6,7 @@
 #include "opcua/DataChangeNotification.h"
 #include "opcua/History.h"
 #include "opcua/Call.h"
+#include "opcua/Monitor.h"
 
 namespace OWA {
   namespace OpcUa {
@@ -13,6 +14,9 @@ namespace OWA {
       public:
 				BinaryCodec();
         BinaryCodec(std::shared_ptr<Cryptor>& cryptor);
+        
+        void setSequenceNumber(uint32_t newValue = 0);
+
         void encode(DataBufferPtr& buffer, HelloMessage& body);
 
         void encode(DataBufferPtr& buffer, OpenSecureChannelRequest& value, std::shared_ptr<SymmetricCryptoContext>& context);
@@ -95,9 +99,12 @@ namespace OWA {
 				virtual void decode(DataBufferPtr& buffer, HistoryData& value);
 
         virtual void encode(DataBufferPtr& buffer, HistoryUpdateRequest& value, std::shared_ptr<SymmetricCryptoContext>& context);
+				virtual void encode(DataBufferPtr& buffer, UpdateDataDetails& value);
+
         virtual void encode(DataBufferPtr& buffer, HistoryUpdateResponse& value, std::shared_ptr<SymmetricCryptoContext>& context);
         virtual void decode(DataBufferPtr& buffer, std::shared_ptr<HistoryUpdateRequest>& value);
         virtual void decode(DataBufferPtr& buffer, std::shared_ptr<HistoryUpdateResponse>& value);
+				virtual void decode(DataBufferPtr& buffer, HistoryUpdateResult& value);
 
         virtual void encode(DataBufferPtr& buffer, CreateSubscriptionRequest& value, std::shared_ptr<SymmetricCryptoContext>& context);
         virtual void encode(DataBufferPtr& buffer, CreateSubscriptionResponse& value, std::shared_ptr<SymmetricCryptoContext>& context);
@@ -205,7 +212,13 @@ namespace OWA {
         void encode(DataBufferPtr&buffer, const ApplicationDescription& value);
         void encode(DataBufferPtr&buffer, const Duration& value);
         void encode(DataBufferPtr& buffer, const SignatureData& value);
-        void encode(DataBufferPtr& buffer, const AnonymousIdentityToken& value);
+        
+				void encode(DataBufferPtr& buffer, const AnonymousIdentityToken& value);
+				void encode(DataBufferPtr& buffer, const UserNameIdentityToken& value);
+				void encode(DataBufferPtr& buffer, const X509IdentityToken& value);
+				void encode(DataBufferPtr& buffer, const IssuedIdentityToken& value);
+				void encode(DataBufferPtr& buffer, const DataChangeFilter& value);
+
 				void encode(DataBufferPtr& buffer, TimestampsToReturn value);
 				void encode(DataBufferPtr& buffer, const ReadValueId& value);
 				void encode(DataBufferPtr& buffer, const HistoryReadValueId& value);
@@ -217,7 +230,8 @@ namespace OWA {
 				void encode(DataBufferPtr& buffer, const BrowseDescription& value);
 				void encode(DataBufferPtr& buffer, const DataValue& value);
 				void encode(DataBufferPtr& buffer, const Variant& value);
-				void encode(DataBufferPtr& buffer, bool value);
+				void encode(DataBufferPtr& buffer, float value);
+        void encode(DataBufferPtr& buffer, bool value);
 				void encode(DataBufferPtr& buffer, const MonitoredItemCreateRequest& value);
 				void encode(DataBufferPtr& buffer, const MonitoringParameters& value);
 				void encode(DataBufferPtr& buffer, const SubscriptionAcknowledgement& value);

@@ -25,7 +25,7 @@ namespace OWA {
 			void claim();
 			void release();
 			std::shared_ptr<boost::asio::io_service>& getService();
-
+			void shutdown();
 		protected:
 			std::shared_ptr<std::thread> serviceThread;
 			std::atomic<bool> shuttingDown;
@@ -39,6 +39,8 @@ namespace OWA {
 			IoServiceManager(int numberOfServices = 1);
 			std::shared_ptr<boost::asio::io_service> claimService();
 			void releaseService(std::shared_ptr<boost::asio::io_service>& service);
+			void shutdown();
+			~IoServiceManager();
 		protected:
 			std::vector<std::shared_ptr<IoService>> services;
 		};

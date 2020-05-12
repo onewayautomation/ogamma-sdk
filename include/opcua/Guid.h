@@ -10,9 +10,14 @@ namespace OWA {
       uint16_t Data3;
       uint8_t  Data4[8];
 
+      // Initialized all members to 0
       Guid();
 
+      // Sets members to newly generated GUID value
+      const Guid& Generate();
+
       bool operator== (const Guid& r) const;
+      bool operator!= (const Guid& r) const;
       bool operator< (const Guid& r) const;
 			std::string toString() const;
     };

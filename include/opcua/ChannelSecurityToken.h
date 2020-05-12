@@ -9,7 +9,7 @@ namespace OWA {
         SecureChannelId = 0;
         TokenId = 0;
         RevisedLifetime = 5000;
-				CreatedAt = DateTime::now();
+				CreatedAt.now();
       }
       uint32_t SecureChannelId;
       uint32_t TokenId;

@@ -147,17 +147,18 @@ namespace OWA {
 			std::vector<SubscriptionAcknowledgement> subscriptionAcknowledgements;
 			typedef std::shared_ptr<PublishRequest> Ptr;
 			~PublishRequest() {
-				int i = 0;
 			}
     };
 
 		struct NotificationMessage {
+			NotificationMessage(): sequenceNumber(0) {};
 			uint32_t sequenceNumber;
 			DateTime publishTime;
 			std::vector<ExtensionObject::Ptr> notificationData;
 		};
 
     struct PublishResponse {
+			PublishResponse() :subscriptionId(0), moreNotifications(false) {};
       ResponseHeader header;
 			uint32_t subscriptionId;
 			std::vector<uint32_t> availableSequenceNumbers;

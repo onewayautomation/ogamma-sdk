@@ -42,6 +42,7 @@ namespace OWA {
 		};
 
 		struct BrowseResult {
+			BrowseResult() :statusCode(StatusCode::BadInternalError) {};
 			StatusCode statusCode;
 			ByteString continuationPoint;
 			std::vector<ReferenceDesciption> references;
@@ -63,7 +64,6 @@ namespace OWA {
 			boost::any				context;
 			typedef std::shared_ptr<BrowseRequest> Ptr;
 			~BrowseRequest() {
-				int i = 0; //TODO
 			}
     };
 

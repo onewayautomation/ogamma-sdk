@@ -11,7 +11,7 @@ namespace OWA {
   namespace OpcUa {
     union NodeIdIdentifier
     {
-			NodeIdIdentifier() {};
+      NodeIdIdentifier() { numericValue = 0; };
 			~NodeIdIdentifier() {};
       uint32_t      numericValue;
       std::string		stringValue;

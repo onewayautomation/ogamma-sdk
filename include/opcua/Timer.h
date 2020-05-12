@@ -181,6 +181,7 @@ namespace OWA {
 				nextId = 0;
 				done = false;
 				worker = std::thread(std::bind(&Timer::run, this));
+				lock.unlock();
 			}
 
 			~Timer()
@@ -259,22 +260,23 @@ namespace OWA {
 			*/
 			bool remove(timer_id id)
 			{
+				bool result = true;
 				scoped_m lock(m);
 				auto i = events.find(id);
 				if (i == events.end()) 
 				{
-					return false;
+					result = false;
 				}
 				else
 				{
 					events.erase(i);
 				}
-				bool result = false;
+				
 				auto it = std::find_if(time_events.begin(), time_events.end(),
 					[&](const detail::Time_event &te) { return te.ref == id; });
 				if (it != time_events.end()) {
 					time_events.erase(it);
-					result = true;
+					result = result ? true : result;
 				}
 				lock.unlock();
 				cond.notify_all();

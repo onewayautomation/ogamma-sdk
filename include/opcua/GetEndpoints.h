@@ -39,6 +39,7 @@ namespace OWA {
 			typedef std::shared_ptr<GetEndpointsRequest> Ptr;
     };
     struct UserTokenPolicy {
+      UserTokenPolicy() :tokenType(UserIdentityTokenType::ANONYMOUS_0) {};
       /**
       An identifier for the UserTokenPolicy assigned by the Server.
       The Client specifies this value when it constructs a UserIdentityToken that conforms to the policy.
@@ -53,6 +54,8 @@ namespace OWA {
     };
 
     struct EndpointDescription {
+      EndpointDescription() :securityLevel(0) {};
+
       // The URL for the Endpoint described.
       std::string endpointUrl;
 

@@ -117,9 +117,14 @@ namespace OWA{
           ProtocolVersion = 0;
 					ReceiveBufferSize = settings.receiveBufferSize;
 					SendBufferSize = settings.sendBufferSize;
-          MaxMessageSize = settings.maxReceiveMessageSize; // no limit. Must be minimum 8196 bytes.
-					if (MaxMessageSize < 8196)
-						MaxMessageSize = 8196;
+          MaxMessageSize = settings.maxReceiveMessageSize; // no limit. Must be minimum 8192 bytes.
+					if (MaxMessageSize < 8192)
+						MaxMessageSize = 8192;
+          if (ReceiveBufferSize < 8192)
+            ReceiveBufferSize = 8192;
+          if (SendBufferSize < 8192)
+            SendBufferSize = 8192;
+
           MaxChunkCount = settings.maxReceiveChunkCount;
         }
 
@@ -160,17 +165,15 @@ namespace OWA{
       };
 
       struct ErrorMessage {
+        ErrorMessage() :error(0){};
         uint32_t error;
         std::string reason;
       };
 
 			struct TcpReadContext
 			{
-				TcpReadContext()
-				{
-					currentDataBuffer.reset(new DataBuffer(8, 0));
-					chunkCounter = 0;
-				}
+        TcpReadContext();
+        ~TcpReadContext();
 
 				// Returns true if all chunks are received.
 				bool isComplete()
@@ -185,7 +188,7 @@ namespace OWA{
 						// If we go from the latest chunk to the beginning of the map, then each entry should have sequence number decremented by 1.
 						uint32_t lastSequenceNumber = chunks.rbegin()->first;
 						uint32_t firstSequenceNumber = chunks.begin()->first;
-						if ((lastSequenceNumber + 1 - firstSequenceNumber) == chunks.size() && chunks.rbegin()->second.first->ChunkType == 'F')
+						if (((size_t) lastSequenceNumber + 1 - (size_t) firstSequenceNumber) == chunks.size() && chunks.rbegin()->second.first->ChunkType == 'F')
 							return true;
 						else
 							return false;
@@ -221,6 +224,8 @@ namespace OWA{
 				MessageHeaderPtr currentMessageHeader;
 				// Currently used data Buffer. It is also storage for the final  total message buffer, assembled from multiple chunks.
 				DataBufferPtr currentDataBuffer;
+
+        void reset();
 			};
 			typedef std::shared_ptr<TcpReadContext> TcpReadContextPtr;
 

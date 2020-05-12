@@ -4,7 +4,7 @@ C++ OPC UA SDK from One-Way Automation - public redistributables.
 ## Summary
 This SDK is intended to extremely simplify creation of OPC UA Client and Server Applications in modern C++. The plan is to implement OPC UA communication stack and provide high level classes to asynchronously send, receive and handle OPC UA requests and responses, and have built-in support for standard OPC UA Server or Client features (example for server side - managing of endpoints, namespaces, sessions, interface for plug-ins to collect data from external data sources, etc). Primary target and narrow specialization of this SDK are high performance OPC UA applications running in PC or cloud environment. It is expected that it will be resource unpretentious and run in lower end hardware such as Raspberry PI though, but narrow specialization will be to satisfy requirements for enterprise scale applications.
 
-Includes header files and pre-built binaries for Visual Studio 2017.
+Includes header files and pre-built binaries for Visual Studio 2019.
 
 **Binaries for other targets can be created up on request - please feel free to create an issue!**
 
@@ -71,20 +71,12 @@ Source code is stored in private repository. Technical preview version is ready 
 - OPC Binary encoding
   - Implemented for most data types, which are required to send requests and receive responses for functionality listed above.
   - Encoding and Decoding of complex data type values can be handled by the user application, so no need to modify the SDK to support complex data types.
-## Road-map
-### Version 1.0
-Estimated time of delivery - second quarter of 2019.
-- Client side features only.
-- Polish features listed in section "Current status of the project"
-- Add support for services required to have "minimum viable product":
-  - TranslateBrowsePathsToNodeIds
-  - ModifySubscription;
-  - ModifyMonitoredItems;
+
 ### Next versions
 TBD.
 
 ## License and Copyright
-Copyright 2018-2019, One-Way Aautomation Inc.
+Copyright 2018-Present, One-Way Aautomation Inc.
 
 For open source projects, research, education and non-commercial organizations, as well as for personal usage by developers free binary license is available.
 
@@ -96,7 +88,7 @@ For detailed licensing information please refer [Developer's Guide, section on l
 - Clone the project: ``git clone https://github.com/onewayautomation/1WaOpcUaSdk.git``
 - Navigate to the folder with OPC UA SDK: ``cd 1WaOpcUaSdk``
 - Pull and build dependencies by running of the script ``install-opcuasdk-dependencies.cmd``. Note that is takes significant time to build them.
-- SDK binary library files for Visual Studio 2017 are available to download from https://onewayautomation.com/opcua-binaries/opcua-sdk-0.8.0.zip. Content of zip file should be extracted into sub-folder ``lib`` of the SDK source code repository.
+- SDK binary library files for Visual Studio 2019 are available to download from https://onewayautomation.com/opcua-binaries/opcua-sdk-1.0.0.zip. Content of zip file should be extracted into sub-folder ``lib`` of the SDK source code repository.
 
 Distributables of the SDK include sample **HelloWorld** project located under folder **examples**, which can be used as a base for your first project.
 

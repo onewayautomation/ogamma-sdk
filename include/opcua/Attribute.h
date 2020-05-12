@@ -39,7 +39,6 @@ namespace OWA {
 				nodesToRead.push_back(nodeId);
 			}
 			virtual ~ReadRequest() {
-				int i = 0;
 			}
 
       static RequestResponseTypeId getTypeId() {
@@ -62,7 +61,6 @@ namespace OWA {
 			inline bool isGood() { return Utils::isGood(*this);}
 			typedef std::shared_ptr<ReadResponse> Ptr;
 			~ReadResponse() {
-				int i = 0;
 			}
     };
 
@@ -96,7 +94,7 @@ namespace OWA {
 			inline bool isGood() { return Utils::isGood(*this); }
     };
 
-	struct HistoryReadValueId
+		struct HistoryReadValueId
 	{
 		HistoryReadValueId();
 		HistoryReadValueId(const NodeId& nodeId);
@@ -129,6 +127,7 @@ namespace OWA {
 			ByteString continuationPoint;
 			ExtensionObject::Ptr historyData;
 		};
+		
 		struct HistoryReadResponse {
       ResponseHeader header;
 			std::vector<HistoryReadResult> results;
@@ -144,11 +143,18 @@ namespace OWA {
       RequestHeader header;
 			boost::any		context;
 
+			std::vector<ExtensionObject::Ptr>	historyUpdateDetails;
+
 			typedef std::shared_ptr<HistoryUpdateRequest> Ptr;
+
     };
     struct HistoryUpdateResponse {
       ResponseHeader header;
 			inline bool isGood() { return Utils::isGood(*this); }
+
+			std::vector<HistoryUpdateResult>	results;
+			std::vector<DiagnosticInfo>				diagnosticInfos;
+
 			typedef std::shared_ptr<HistoryUpdateResponse> Ptr;
     };
 

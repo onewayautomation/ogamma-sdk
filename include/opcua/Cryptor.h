@@ -19,8 +19,9 @@ namespace OWA {
     public:
       Cryptor();
 
-      void initialize(SecurityPolicyId id, MessageSecurityMode securityMode, 
+      void initialize(SecurityPolicyId certificateSecPolicyId, SecurityPolicyId communicationSecPolicyId, MessageSecurityMode securityMode,
         CertificateSettings& myCertificateSettings, X509Certificate& hisCertificate, std::function<std::string()> passwordCallback);
+
       void setPasswordCallback(std::function<std::string()> f);
       virtual ByteString generateClientNonceForOpenSecureChannelRequest(const std::string& securityPolicyUri);
       virtual ByteString generateClientNonceForCreateSessionRequest(const std::string& securityPolicyUri);
@@ -39,6 +40,7 @@ namespace OWA {
       X509Certificate getHisCertificate();
       std::string getHisCertificateFingerprint();
       bool validateCertificateThumbprint(const ByteString& thumbPrint);
+			std::vector<Botan::byte> encrypt(uint8_t* data, uint32_t length);
 
     protected:
       void save(const std::string& content, const std::string& fileName );
@@ -46,7 +48,7 @@ namespace OWA {
       void save(const std::vector<uint8_t>& content, const boost::filesystem::path& fileName);
       std::string getPrivateKeyPassword();
       void loadCertificate(SecurityPolicyId securityPolicyId, X509Certificate& certificate, std::shared_ptr<Botan::Private_Key>& privateKey);
-      std::vector<Botan::byte> encrypt(uint8_t* data, uint32_t length);
+      
     };
   }
 }

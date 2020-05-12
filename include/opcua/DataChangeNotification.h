@@ -5,6 +5,7 @@
 namespace OWA {
 	namespace OpcUa {
 		struct MonitoredItemNotification {
+			MonitoredItemNotification() :clientHandle(0) {};
 			uint32_t clientHandle;
 			DataValue dataValue;
 		};

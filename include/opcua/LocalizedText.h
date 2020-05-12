@@ -30,6 +30,8 @@ namespace OWA {
 			LocalizedText(const LocalizedText& other) {
 				*this = other;
 			}
+			~LocalizedText() {}
+
 			LocalizedText& operator=(const LocalizedText& other) {
 				if (this != &other) {
 					locale = other.locale;
@@ -37,13 +39,13 @@ namespace OWA {
 				}
 				return *this;
 			}
-			LocalizedText& operator=(const std::string& text) {
-				this->text = text;
+			LocalizedText& operator=(const std::string& text_) {
+				this->text = text_;
 				this->locale = "en";
 				return *this;
 			}
-			LocalizedText& operator=(const char* text) {
-				this->text = text;
+			LocalizedText& operator=(const char* text_) {
+				this->text = text_;
 				this->locale = "en";
 				return *this;
 			}

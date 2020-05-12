@@ -13,9 +13,9 @@ namespace OWA {
 			void setDefaults()
 			{
 				secureChannelLifetime = 600000; // 10 Minutes
-				receiveBufferSize = 8192; // 16777216;
-				sendBufferSize = 8192; // 16777216;
-				maxReceiveMessageSize = 16777216; // no limit. Must be minimum 8196 bytes.
+				receiveBufferSize = 1024 * 1024; // 8192; // TODO - Setting to 8192 causes problem with Honeywell Experion.
+				sendBufferSize = 1024 * 1024; // 8192; // 16777216;
+				maxReceiveMessageSize = 16777216; // no limit. Must be minimum 8192 bytes.
 				maxSendMessageSize = 16777216;
 				maxSendChunkCount = 0;
 				maxReceiveChunkCount = 0;
@@ -38,8 +38,8 @@ namespace OWA {
 			}
 
 			uint32_t secureChannelLifetime;
-			uint32_t receiveBufferSize; // Size of chunk for incoming messages
-			uint32_t sendBufferSize; //Size of chink for outgoing messages
+			uint32_t receiveBufferSize; // Size of chunk for incoming messages: must be greater than 8196
+			uint32_t sendBufferSize; //Size of chink for outgoing messages: must be greater than 8196
 			uint32_t maxSendMessageSize; // Total message size for outgoing messages
 			uint32_t maxReceiveMessageSize; // Total size of incoming messages
 			uint32_t maxSendChunkCount; //Max count for sent chunks

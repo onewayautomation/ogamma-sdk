@@ -124,6 +124,12 @@ namespace OWA {
 			virtual uint32_t getMaxSendChunkCount() = 0;
       // Added for testing secure channel renewals
       virtual ChannelSecurityToken getSecureChannelToken() = 0;
+      
+      virtual const std::string& getName() const = 0;
+      virtual void setName(const std::string& newName) = 0;
+
+      virtual void setShutdownFlag(bool value) = 0;
+      virtual bool getShutdownFlag() = 0;
     };
   }
 }

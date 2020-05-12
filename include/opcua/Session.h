@@ -38,6 +38,7 @@ namespace OWA {
     };
 
     struct CreateSessionResponse {
+      CreateSessionResponse() :revisedSessionTimeout(0), maxRequestMessageSize(0){};
       ResponseHeader header;
       NodeId sessionId;
       SessionAuthenticatonToken authenticationToken;

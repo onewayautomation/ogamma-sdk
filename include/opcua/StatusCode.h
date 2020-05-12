@@ -238,7 +238,7 @@ class StatusCodeUtil {
 public:
 	static bool isGood(const StatusCode code);
 	static bool isBad(const StatusCode code);
-	static std::string toString(StatusCode code);
+	static std::string toString(StatusCode code, bool includeCode = false);
 protected:
 static std::map<StatusCode, std::string> codeToStringMap;
 };

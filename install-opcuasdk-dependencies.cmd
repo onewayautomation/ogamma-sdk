@@ -16,5 +16,20 @@ call %SCR_PATH%\build-boost-full.cmd
 REM =============== boost has been installed! =================
 
 REM =============== Installing botan ... ======================
-call %SCR_PATH%\build-botan.cmd
+pwsh %SCR_PATH%\build-botan.ps1
 REM =============== botan has been installed! =================
+
+PUSHD %REPO_BASE_FOLDER%
+IF EXIST spdlog GOTO END_SPDLOG
+git clone  --branch v1.4.2 https://github.com/gabime/spdlog.git
+:END_SPDLOG
+
+PUSHD %REPO_BASE_FOLDER%
+IF EXIST Catch2 GOTO END_CATCH2
+git clone  --branch v2.11.0 https://github.com/catchorg/Catch2.git
+:END_CATCH2
+
+
+
+
+POPD

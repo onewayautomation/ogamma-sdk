@@ -181,11 +181,12 @@ namespace OWA {
       ISSUEDTOKEN_3 = 3 // Any WS - Security defined token.
     };
 
-    enum ConnectionState : uint8_t {
-      Disconnected = 0, // Disconnected (initial state, or state as result of normal disconnect call)
-      Connecting = 1,       // Connection is in progress
-      Connected = 2,        // Connection is established
-      Disconnecting = 3     // Disconnection is in progress
+    enum struct ConnectionState : uint8_t {
+      Invalid = 0,
+      Disconnected = 1, // Disconnected (initial state, or state as result of normal disconnect call)
+      Connecting = 2,       // Connection is in progress
+      Connected = 3,        // Connection is established
+      Disconnecting = 4     // Disconnection is in progress
     };
     enum struct SecurityPolicyId : uint8_t {
       Invalid = 0,
@@ -261,7 +262,7 @@ namespace OWA {
 			std::string name; // Should be restricted to 512 characters
 		};
 
-		enum BrowseDirection {
+		enum class BrowseDirection: uint8_t {
 			forward = 0,
 			inverse = 1,
 			both = 2
@@ -299,13 +300,13 @@ namespace OWA {
 			uint32_t value;
 			BrowseResultBits bits;
 		};
-		enum MonitoringMode {
+		enum struct MonitoringMode: uint8_t {
 			disabled = 0,
 			sampling = 1,
 			reporting = 2
 		};
 
-		enum AttributeId
+		enum struct AttributeId: uint8_t
 		{
 			nodeId			= 1,
 			nodeClass		= 2,
@@ -332,7 +333,7 @@ namespace OWA {
 		};
 
 		// NodeClass enum values are defined in Part 3.
-		enum class NodeClass
+		enum class NodeClass: uint8_t
 		{
 			unspecifided = 0,
 			object = 1,
@@ -346,5 +347,13 @@ namespace OWA {
 		};
 
 		typedef uint32_t Counter;
+
+		enum class PerformUpdateType:uint8_t
+		{
+			insert = 1,
+			replace = 2,
+			update = 3
+		};
+
   }
 }

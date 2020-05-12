@@ -2,6 +2,7 @@
 #include <vector>
 #include <stdint.h>
 #include <botan/secmem.h>
+#include <string>
 
 namespace OWA {
   namespace OpcUa {
@@ -13,6 +14,7 @@ namespace OWA {
 			ByteString(const char* value);
 
 			ByteString& assign(uint8_t* bytes, uint32_t length);
+			ByteString& append(uint8_t* bytes, uint32_t length);
 			ByteString& assignCertificateFingerPrint(const std::string& other);
 			ByteString& operator=(const ByteString& other);
 			ByteString& operator=(const std::vector<uint8_t>& other);

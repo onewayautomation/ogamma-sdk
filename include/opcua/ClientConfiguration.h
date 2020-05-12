@@ -43,17 +43,19 @@ namespace OWA {
 
 			// Interval to read server state (connection watchdog).
 			uint32_t readServerStateInterval;
-			
 			uint32_t timeoutReadServerState;
+			uint32_t pendingRequestsProcessingInterval;
 
 			// Timeouts for various kinds of requests
 			uint32_t timeoutConnection;
+			uint32_t timeoutChannel;
 			uint32_t timeoutDiscovery;
 			uint32_t timeoutBrowse;
 			uint32_t timeoutRead;
 			uint32_t timeoutWrite;
 			uint32_t timeoutPublish;
 			uint32_t timeoutCall;
+			uint32_t timeoutCloseSession;
 
 			// Timeout for other requests for which no default value is defined:
 			uint32_t timeoutGeneral;
@@ -67,11 +69,14 @@ namespace OWA {
 			uint32_t parallelPublishRequests;
 
 			TransportSettings transportSettings;
+
+			bool useGetEndpointsHostName;
 	  };
 
     struct ClientConfiguration {
       ClientConfiguration();
 			ClientConfiguration(const std::string& endpointUrl, bool createSession = false);
+			ClientConfiguration& operator=(const ClientConfiguration& other);
 
       std::string getDiscoveryUrl(RequestResponseTypeId forRequestType, const std::string& protocol = Protocol::tcp);
 

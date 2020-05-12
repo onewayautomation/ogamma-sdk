@@ -29,6 +29,7 @@ namespace OWA {
   namespace OpcUa {
     class Codec {
     public:
+      virtual void setSequenceNumber(uint32_t newValue = 0) = 0;
       virtual void encode(DataBufferPtr& buffer, HelloMessage& body) = 0;
 
       virtual void decode(DataBufferPtr&  buffer, std::shared_ptr<MessageHeader>& result) = 0;

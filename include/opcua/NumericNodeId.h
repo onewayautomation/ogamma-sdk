@@ -10,9 +10,14 @@ namespace OWA { namespace OpcUa {
 			XmlElement = 16,
 			HierarchicalReferences = 33,
 			RootFolder = 84,
-			AnonymousIdentityToken = 321,
+
+			AnonymousIdentityToken = 319,
+			AnonymousIdentityToken_Encoding_DefaultBinary = 321,
+			UserNameIdentityToken = 322,
 			UserNameIdentityToken_Encoding_DefaultBinary = 324,
-			
+			X509IdentityToken = 325,
+			X509IdentityToken_Encoding_DefaultBinary = 327,
+
 			HistoryReadDetails_Encoding_DefaultBinary = 643,
 			ReadEventDetails_Encoding_DefaultBinary = 646,
 			ReadRawModifiedDetails_Encoding_DefaultBinary = 649,
@@ -21,10 +26,23 @@ namespace OWA { namespace OpcUa {
 			HistoryData_Encoding_DefaultBinary = 658,
 			HistoryEvent_Encoding_DefaultBinary = 661,
 
+			UpdateDataDetails = 680,
+			UpdateDataDetails_Encoding_DefaultBinary = 682,
+			
+			MonitoringFilter = 719,
+			MonitoringFilter_Encoding_DefaultBinary = 721,
+
+			DataChangeFilter = 722,
+			DataChangeFilter_Encoding_DefaultBinary = 724,
+
 			DataChangeNotification_Encoding_DefaultBinary = 811, 
 			NotificationData_Event,
 			NotificationData_StatusChange,
 			ServerStatusDataType = 864,
+
+			IssuedIdentityToken = 938,
+			IssuedIdentityToken_Encoding_DefaultBinary = 940,
+
 			ServerStatusType = 2138,
 			ServerStatus = 2256
     };

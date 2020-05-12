@@ -22,6 +22,7 @@ namespace OWA {
 			DataBuffer(uint32_t count, uint8_t value);
 
 			DataBuffer& operator=(const std::vector<uint8_t>& other);
+			~DataBuffer();
 			uint8_t& operator[](uint32_t index);
 			uint8_t* data();
 			uint32_t size();
@@ -42,7 +43,7 @@ namespace OWA {
 			bool incrementChunkNumber();
       uint32_t getNumberOfChunks();
 			uint32_t getSecurityRequestId();
-			void setTransport(std::shared_ptr<Transport>& transport);
+			void setTransport(std::weak_ptr<Transport> transport);
 			void setSecurityRequestId(uint32_t id);
 			void push_back(std::shared_ptr<DataBuffer>& other);
       void setSequenceHeaderPosition();
@@ -51,7 +52,7 @@ namespace OWA {
 			void init();
       std::vector<uint8_t> buffer; 
 			uint32_t position;
-			std::shared_ptr<Transport> transport;
+			std::weak_ptr<Transport> transport;
 			uint32_t totalMessageSize;
 			uint32_t chunkNumber;
 			char messageFlag;

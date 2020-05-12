@@ -51,5 +51,24 @@ namespace OWA {
 
 			std::vector<DataValue> dataValues;
 		};
+
+		struct UpdateDataDetails : public ExtensionObject
+		{
+			UpdateDataDetails();
+
+			NodeId									nodeId;
+			PerformUpdateType				performInsertReplace;
+			std::vector<DataValue>	updateValues;
+
+			typedef std::shared_ptr <UpdateDataDetails> Ptr;
+		};
+
+		struct HistoryUpdateResult
+		{
+			HistoryUpdateResult();
+			StatusCode statusCode;
+			std::vector<StatusCode> operationResults;
+			std::vector<DiagnosticInfo> diagnosticInfos;
+		};
 	}
 }

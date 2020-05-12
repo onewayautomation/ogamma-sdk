@@ -4,7 +4,7 @@
 namespace OWA {
   namespace OpcUa {
     class BaseCryptor : public Cryptor {
-      virtual void signAndEncrypt(DataBufferPtr&  buffer) {};
+      virtual void signAndEncrypt(DataBufferPtr& buffer) { (void)buffer; };
     };
   }
 }

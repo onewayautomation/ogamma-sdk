@@ -2,7 +2,7 @@
 #include "opcua/opcua.h"
 #include "opcua/DateTime.h"
 #include "opcua/ExtensionObject.h"
-
+#include "opcua/StatusCode.h"
 
 namespace OWA {
   namespace OpcUa {
@@ -20,6 +20,7 @@ namespace OWA {
       std::string     auditEntryId;
       uint32_t        timeoutHint; // in milliseconds
       ExtensionObject::Ptr additionalHeader;
+			StatusCode		  sendResult;
 		private:
 			uint32_t requestId; // Assigned by SDK and used by SDK. Used to map received responses to sent requests. 
     };

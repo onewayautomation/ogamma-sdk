@@ -9,7 +9,7 @@
 #include "opcua/LocalizedText.h"
 #include "opcua/ExtensionObject.h"
 #include "opcua/DiagnosticInfo.h"
-//#include "opcua/DataValue.h"
+#include <stdexcept>
 
 namespace OWA {
 	namespace OpcUa {
@@ -25,7 +25,7 @@ namespace OWA {
 		};
 
 		struct Variant {
-			enum dataType {
+			enum struct dataType:uint8_t {
 				T_Empty = 0,
 				T_Boolean = 1, // A two state logical value(true or false).
 				T_SByte = 2, // An integer value between −128 and 127.
@@ -183,6 +183,7 @@ namespace OWA {
 			Variant& operator=(const float other);
 			Variant& operator=(const double other);
 			Variant& operator=(const std::string& other);
+			Variant& operator=(const char* other);
 			Variant& operator=(const DateTime& other);
 			Variant& operator=(const Guid& other);
 			Variant& operator=(const ByteString& other);
@@ -225,10 +226,13 @@ namespace OWA {
 			bool operator!=(const Variant& other) const;
 			// Methods
 			void clear();
-			std::string toString() const;
+			std::string toString(size_t maxSize = 256) const;
 			
 			// converts to float is possible, otherwise throws exception:
 			float toFloat() const;
+
+			// Returns true, if data type is boolean or numeric, and either scalar or array with length 1.
+			bool isNumeric() const;
 
 			// Conversion operators. If type of isArray are not matching, throw exception.
 			operator bool() const;
@@ -254,11 +258,14 @@ namespace OWA {
 			operator LocalizedText() const;
 			operator ExtensionObject::Ptr() const;
 			operator DiagnosticInfo() const;
-
-			struct ConversionException 
+			
+			/* Parses string to convert it to current data type of the variant. If it is empty, then assigns as string
+			If cannot convert, returns false */
+			bool parse(const std::string& str);
+			
+			struct ConversionException : std::runtime_error
 			{
 				ConversionException(const std::string& textMessage);
-				std::string text;
 			};
 
 		private: 

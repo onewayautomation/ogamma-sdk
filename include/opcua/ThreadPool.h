@@ -16,6 +16,7 @@
 #include <stdexcept>
 #include <iostream>
 #include "opcua/CriticalError.h"
+#include <spdlog/spdlog.h>
 
 namespace OWA {
 	namespace OpcUa {
@@ -47,11 +48,13 @@ namespace OWA {
 		{
 			if (threads < 1)
 			{
-				throw CriticalErrorException("ThreadPool: Invalid argument ""threads""");
+        spdlog::critical("ThreadPool: Invalid argument ""threads""");
+        throw CriticalErrorException("ThreadPool: Invalid argument ""threads""");
 			}
 			for (size_t i = 0; i < threads; ++i)
-				workers.emplace_back(
-					[this] {
+				workers.emplace_back(	[this, i]
+        {
+            spdlog::info("Starting thread {} of the pool", i + 1);
 						for (;;)
 						{
 							std::function<void()> task;
@@ -62,14 +65,16 @@ namespace OWA {
 								{
 									return this->stop || !this->tasks.empty();
 								});
-								if (this->stop && this->tasks.empty()) {
+								if (this->stop && this->tasks.empty()) 
+                {
+                  // spdlog::info("Stopping thread {} of the pool", i + 1);
 									return;
 								}
 								task = this->tasks.front();
 								this->tasks.pop();
 								if (tasks.size() >= 10)
 								{
-									std::cout << "Pop - Thread pool task queue size is " << tasks.size() << "\n";
+                  spdlog::warn("Pop - Thread pool task queue size is {}", tasks.size());
 								}
 							}
 							task();
@@ -98,9 +103,10 @@ namespace OWA {
 				std::unique_lock<std::mutex> lock(queue_mutex);
 
 				// don't allow enqueueing after stopping the pool
-				if (stop)
-					throw CriticalErrorException("enqueue on stopped ThreadPool");
-
+        if (stop)
+        {
+          throw CriticalErrorException("enqueue on stopped ThreadPool");
+        }
 				tasks.emplace(func);
 			}
 			condition.notify_one();
