@@ -1,4 +1,10 @@
 #pragma once 
+/*
+* ogamma OPC UA C++ SDK
+* Copyright(c) One-Way Automation Inc.
+* https://onewayautomation.com/opcua-sdk
+* All rights reserved.
+*/
 #include "opcua/CertificateSettings.h"
 #include "opcua/ApplicationDescription.h"
 #include "opcua/GetEndpoints.h"
@@ -70,6 +76,7 @@ namespace OWA {
 
 			TransportSettings transportSettings;
 
+			// If this option is true, then in case of connection problems it would try to use host name which was used in GetEndpoints or FindServers call.
 			bool useGetEndpointsHostName;
 	  };
 

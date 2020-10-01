@@ -1,4 +1,10 @@
 #pragma once
+/*
+* ogamma OPC UA C++ SDK
+* Copyright(c) One-Way Automation Inc.
+* https://onewayautomation.com/opcua-sdk
+* All rights reserved.
+*/
 #include <stdint.h>
 
 // Created from file http://www.opcfoundation.org/UA/schemas/NodeIds.csv

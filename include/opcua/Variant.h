@@ -1,4 +1,10 @@
 ﻿#pragma once
+/*
+* ogamma OPC UA C++ SDK
+* Copyright(c) One-Way Automation Inc.
+* https://onewayautomation.com/opcua-sdk
+* All rights reserved.
+*/
 #include <string>
 #include <stdint.h>
 #include "opcua/DateTime.h"
@@ -228,6 +234,8 @@ namespace OWA {
 			void clear();
 			std::string toString(size_t maxSize = 256) const;
 			
+			static std::string toString(const dataType type);
+
 			// converts to float is possible, otherwise throws exception:
 			float toFloat() const;
 

@@ -3,7 +3,7 @@ SET SCR_PATH=%~dp0
 for %%i in ("%~dp0.") do SET "SCR_PATH=%%~fi"
 
 SET SDK_FOLDER=%SCR_PATH%\..\ogamma-sdk
-SET REPO_BASE_FOLDER=%SCRIPT_PATH%\..
+SET REPO_BASE_FOLDER=%SCR_PATH%\..
 
 IF EXIST %SDK_FOLDER% GOTO END_SDK_CLONE
 git clone --recursive --depth 3 https://github.com/onewayautomation/ogamma-sdk.git %SDK_FOLDER%

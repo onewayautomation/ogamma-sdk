@@ -1,4 +1,10 @@
 #pragma once
+/*
+* ogamma OPC UA C++ SDK
+* Copyright(c) One-Way Automation Inc.
+* https://onewayautomation.com/opcua-sdk
+* All rights reserved.
+*/
 #include <botan/x509cert.h>
 #include <botan/block_cipher.h>
 #include <botan/pubkey.h>

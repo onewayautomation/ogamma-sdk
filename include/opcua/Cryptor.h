@@ -1,5 +1,10 @@
 #pragma once
-
+/*
+* ogamma OPC UA C++ SDK
+* Copyright(c) One-Way Automation Inc.
+* https://onewayautomation.com/opcua-sdk
+* All rights reserved.
+*/
 #include "opcua/SecurityPolicy.h"
 #include <memory>
 #include "opcua/DataBuffer.h"
@@ -36,7 +41,7 @@ namespace OWA {
       std::shared_ptr<std::function<std::string()>> privateKeyPasswordCallback;
 
       MessageSecurityMode messageSecurityMode;
-      X509Certificate getMyCertificate();
+      X509Certificate getMyCertificate(bool fullChain = false);
       X509Certificate getHisCertificate();
       std::string getHisCertificateFingerprint();
       bool validateCertificateThumbprint(const ByteString& thumbPrint);

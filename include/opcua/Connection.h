@@ -1,5 +1,11 @@
 #ifndef owa_opcua_connection_h
 #define owa_opcua_connection_h
+/*
+* ogamma OPC UA C++ SDK
+* Copyright(c) One-Way Automation Inc.
+* https://onewayautomation.com/opcua-sdk
+* All rights reserved.
+*/
 #include "opcua/Utils.h"
 #include "opcua/Cryptor.h"
 #include "opcua/LocalizedText.h"

@@ -59,18 +59,18 @@ if ($Env:OS -eq "Windows_NT")  {
 	}
 
 	if ( -not(Test-Path $installDir/debug/botan.lib) ) {
-		python configure.py --debug-mode --enable-static-library --prefix=$installDir/debug --cxxflags=/std:c++latest
+		python configure.py --debug-mode --enable-static-library --prefix=$installDir/debug --cxxflags=/std:c++14
 		nmake.exe BUILD=debug
 		nmake.exe install
 	}
 	if ( -not(Test-Path $installDir/release/botan.lib) ) {
-		python configure.py --enable-static-library --prefix=$installDir/release --cxxflags=/std:c++latest --cxxflags=/std:c++latest
+		python configure.py --enable-static-library --prefix=$installDir/release --cxxflags=/std:c++14 --cxxflags=/std:c++14
 		nmake.exe BUILD=release
 		nmake.exe install
 	}
 }
 else {
-	python ./configure.py --enable-static-library --prefix=$installDir --cxxflags=/std:c++latest
+	python ./configure.py --enable-static-library --prefix=$installDir --cxxflags=/std:c++14
 	make BUILD=debug
 	make install
 

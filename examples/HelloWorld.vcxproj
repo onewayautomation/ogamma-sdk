@@ -100,7 +100,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>../../ogamma-sdk/include;../../botan_2.12.1/windows/$(Configuration)/include/botan-2;../../boost;../../spdlog/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../include;../../botan_2.12.1/windows/$(Configuration)/include/botan-2;../../boost;../../spdlog/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <AdditionalLibraryDirectories>../../ogamma-sdk/lib/WindowsVC2019/x64/$(Configuration);../../botan_2.12.1/windows/$(Configuration)/lib;../../boost/stage/x64/lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
@@ -108,7 +108,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>../../ogamma-sdk/include;../../botan_2.12.1/windows/$(Configuration)/include/botan-2;../../boost;../../spdlog/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../include;../../botan_2.12.1/windows/$(Configuration)/include/botan-2;../../boost;../../spdlog/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <AdditionalLibraryDirectories>../../ogamma-sdk/lib/WindowsVC2019/x64/$(Configuration);../../botan_2.12.1/windows/$(Configuration)/lib;../../boost/stage/x64/lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>

@@ -1,6 +1,11 @@
 #ifndef owa_transport_h
 #define owa_transport_h
-
+/*
+* ogamma OPC UA C++ SDK
+* Copyright(c) One-Way Automation Inc.
+* https://onewayautomation.com/opcua-sdk
+* All rights reserved.
+*/
 #include <string>
 #include "boost/any.hpp"
 #include <vector>
@@ -27,6 +32,7 @@
 
 namespace OWA {
   namespace OpcUa{
+    class DataBuffer;
     class Transport  {
     public:
       virtual ~Transport() {};
@@ -119,7 +125,7 @@ namespace OWA {
 
 			virtual std::weak_ptr<Transport> getSelfRef() = 0;
 
-			virtual bool sendChunkIfFull() = 0;
+			virtual bool sendChunkIfFull(DataBuffer*) = 0;
 			virtual void checkTotalMessageSize(uint32_t bytesToSend) = 0;
 			virtual uint32_t getMaxSendChunkCount() = 0;
       // Added for testing secure channel renewals
