@@ -83,13 +83,14 @@ For open source projects, research, education and non-commercial organizations, 
 
 For detailed licensing information please refer [Developer's Guide, section on licensing](https://onewayautomation.com/opcua-sdk-docs/html/introduction.html#licensing).
 
-## How to use
+## How to use in Windows
 
-- Open windows command line console and navigate to the root folder where source code repositories will be located.
+- Open Windows command line console and navigate to the root folder where source code repositories will be located.
 - Clone the project: ``git clone https://github.com/onewayautomation/ogamma-sdk.git``
 - Navigate to the folder with OPC UA SDK: ``cd ogamma-sdk``
+- If using with Visual Studio 2017, set environment variable: ``SET VS_VERSION=VS2017``
 - Pull and build dependencies by running of the script ``install-opcuasdk-dependencies.cmd``. Note that is takes significant time to build them.
-- SDK binary library files for Visual Studio 2019 are available to download from https://onewayautomation.com/opcua-binaries/ogamma-sdk-1.0.6.zip  Content of zip file should be extracted into sub-folder ``lib`` of the SDK source code repository.
+- SDK binary library files for Visual Studio 2017 and 2019 are available to download from https://onewayautomation.com/opcua-binaries/ogamma-sdk-1.0.6.zip  Content of zip file should be extracted into sub-folder ``lib`` of the SDK source code repository.
 
 Distributables of the SDK include sample **HelloWorld** project located under folder **examples**, which can be used as a base for your first project.
 
