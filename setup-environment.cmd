@@ -1,5 +1,17 @@
 @echo off
-SET vc_bat_name1="C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Auxiliary\Build\vcvarsall.bat"
+IF NOT DEFINED VS_VERSION ( SET VS_VERSION=VS2019)
+
+IF "%VS_VERSION%" == "VS2017" (
+	SET vc_bat_name1="C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvarsall.bat"
+	echo Building for Visual Studio 2017
+	GOTO M1
+	)
+	
+	echo Building for Visual Studio 2019
+	SET vc_bat_name1="C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Auxiliary\Build\vcvarsall.bat"	
+	
+:M1
+
 @echo on
 
 rem SET ARCHITECTURE=amd64

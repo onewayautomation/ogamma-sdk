@@ -45,8 +45,12 @@ if ( -not(Test-Path $installDir) ) {
 
 if ($Env:OS -eq "Windows_NT")  {
 	# Set environment variables for Visual Studio:
-	#if ($env:APPVEYOR_BUILD_WORKER_IMAGE -eq "Visual Studio 2017") {
+	if ($env:VS_VERSION -eq "VS2017") {
+		cmd.exe /c "call ""C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvars64.bat"" $vsArch && set > ./vcvars.txt"
+	}
+	else {
 		cmd.exe /c "call ""C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Auxiliary\Build\vcvars64.bat"" $vsArch && set > ./vcvars.txt"
+	}
 	#} 
 	#else { # TODO: For now setting for VS 2015.Set for other version of Visual Studio too.
 	#	cmd.exe /c "call `"C:\Program Files\Microsoft SDKs\Windows\v7.1\Bin\SetEnv.cmd`" /x64 && call `"C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\vcvarsall.bat $vsArch`" x86_amd64 && set > %temp%\vcvars.txt"
@@ -64,13 +68,13 @@ if ($Env:OS -eq "Windows_NT")  {
 		nmake.exe install
 	}
 	if ( -not(Test-Path $installDir/release/botan.lib) ) {
-		python configure.py --enable-static-library --prefix=$installDir/release --cxxflags=/std:c++14 --cxxflags=/std:c++14
+		python configure.py --enable-static-library --prefix=$installDir/release --cxxflags=/std:c++14
 		nmake.exe BUILD=release
 		nmake.exe install
 	}
 }
 else {
-	python ./configure.py --enable-static-library --prefix=$installDir --cxxflags=/std:c++14
+	python ./configure.py --enable-static-library --prefix=$installDir --cxxflags='-std=c++14'
 	make BUILD=debug
 	make install
 

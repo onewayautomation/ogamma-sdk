@@ -238,6 +238,7 @@ namespace OWA {
 
 			// converts to float is possible, otherwise throws exception:
 			float toFloat() const;
+			double toDouble() const;
 
 			// Returns true, if data type is boolean or numeric, and either scalar or array with length 1.
 			bool isNumeric() const;
