@@ -29,12 +29,16 @@
 #include "opcua/Monitor.h"
 #include "opcua/Call.h"
 #include "opcua/TransportSettings.h"
+#include <future>
+#include "opcua/LifeTimeWatch.h"
+#include "opcua/IpAddressResolver.h"
 
 namespace OWA {
   namespace OpcUa{
     class DataBuffer;
-    class Transport  {
+    class Transport: public std::enable_shared_from_this<Transport> {
     public:
+      Transport():std::enable_shared_from_this<Transport>() {};
       virtual ~Transport() {};
 
 			virtual void setConfiguration(const TransportSettings& config) = 0;
@@ -117,15 +121,16 @@ namespace OWA {
 
       virtual bool sendRequest(std::shared_ptr<CallRequest>& request) = 0;
 
-	    virtual void connect(const std::string& endpointUrl, uint32_t timeoutInMilliseconds = 5000) = 0;
-      virtual std::shared_future<void> disconnect() = 0;
+	    virtual OperationResult connect(const ResolveResultType& endpoints, 
+        std::weak_ptr<LifeTimeWatch> ltw, 
+        uint32_t timeoutInMilliseconds = 5000) = 0;
+     
+      virtual void disconnect(bool reportChange = true) = 0;
 
       virtual void listen(const boost::any& context, const std::string& url) = 0;
       virtual void stopListen(const boost::any& context) = 0;
 
-			virtual std::weak_ptr<Transport> getSelfRef() = 0;
-
-			virtual bool sendChunkIfFull(DataBuffer*) = 0;
+			virtual bool sendChunkIfFull(std::shared_ptr<DataBuffer>& buffer) = 0;
 			virtual void checkTotalMessageSize(uint32_t bytesToSend) = 0;
 			virtual uint32_t getMaxSendChunkCount() = 0;
       // Added for testing secure channel renewals
@@ -136,6 +141,11 @@ namespace OWA {
 
       virtual void setShutdownFlag(bool value) = 0;
       virtual bool getShutdownFlag() = 0;
+
+    protected:
+
+        // To make sure that callbacks to the parent (Connection class) made when the Connection is alive.
+        std::weak_ptr<LifeTimeWatch> parentLifeTimeWatch;
     };
   }
 }

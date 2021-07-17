@@ -11,9 +11,9 @@
 #include "opcua/ByteString.h"
 #include "opcua/OperationResult.h"
 #include "opcua/SecurityPolicy.h"
-#include "opcua/CertificateSettings.h"
 #include <functional>
 #include "opcua/SymmetricCryptoContext.h"
+#include "opcua/OpcUaCertificateStore.h"
 
 namespace boost { namespace filesystem { class path; } }
 
@@ -24,10 +24,11 @@ namespace OWA {
     public:
       Cryptor();
 
-      void initialize(SecurityPolicyId certificateSecPolicyId, SecurityPolicyId communicationSecPolicyId, MessageSecurityMode securityMode,
-        CertificateSettings& myCertificateSettings, X509Certificate& hisCertificate, std::function<std::string()> passwordCallback);
+      void initialize(
+        std::shared_ptr<OpcUaCertificateStore>& certificateStore,
+        SecurityPolicyId certificateSecPolicyId, SecurityPolicyId communicationSecPolicyId, MessageSecurityMode securityMode,
+        X509Certificate& hisCertificate);
 
-      void setPasswordCallback(std::function<std::string()> f);
       virtual ByteString generateClientNonceForOpenSecureChannelRequest(const std::string& securityPolicyUri);
       virtual ByteString generateClientNonceForCreateSessionRequest(const std::string& securityPolicyUri);
 
@@ -37,8 +38,6 @@ namespace OWA {
 
       std::shared_ptr<Botan::RandomNumberGenerator> randomNumberGenerator;
       std::shared_ptr<SecurityPolicy> securityPolicy;
-      CertificateSettings certificateSettings;
-      std::shared_ptr<std::function<std::string()>> privateKeyPasswordCallback;
 
       MessageSecurityMode messageSecurityMode;
       X509Certificate getMyCertificate(bool fullChain = false);
@@ -47,12 +46,14 @@ namespace OWA {
       bool validateCertificateThumbprint(const ByteString& thumbPrint);
 			std::vector<Botan::byte> encrypt(uint8_t* data, uint32_t length);
 
+      std::shared_ptr<Botan::RandomNumberGenerator> getRng();
     protected:
       void save(const std::string& content, const std::string& fileName );
       void save(const std::string& content, const boost::filesystem::path& fileName);
       void save(const std::vector<uint8_t>& content, const boost::filesystem::path& fileName);
       std::string getPrivateKeyPassword();
       void loadCertificate(SecurityPolicyId securityPolicyId, X509Certificate& certificate, std::shared_ptr<Botan::Private_Key>& privateKey);
+      std::shared_ptr<OpcUaCertificateStore> certificateStore;
       
     };
   }

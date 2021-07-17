@@ -26,6 +26,11 @@ namespace OWA {
       bool operator!= (const Guid& r) const;
       bool operator< (const Guid& r) const;
 			std::string toString() const;
+      
+      // Sets all fields to 0
+      void reset();
+      
+      bool parse(const std::string& stringValue);
     };
   }
 }

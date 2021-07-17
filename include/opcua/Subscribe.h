@@ -9,7 +9,6 @@
 #include "opcua/ResponseHeader.h"
 #include "opcua/Enums.h"
 #include "opcua/NumericNodeId.h"
-#include "opcua/Utils.h"
 #include <boost/any.hpp>
 
 namespace OWA {
@@ -47,7 +46,7 @@ namespace OWA {
     };
 
     struct CreateSubscriptionResponse {
-			bool isGood() {	return Utils::isGood(*this); }
+			bool isGood();
 
 			CreateSubscriptionResponse() {
 				revisedPublishingInterval = 0;
@@ -95,9 +94,7 @@ namespace OWA {
     };
 
     struct DeleteSubscriptionsResponse {
-			inline bool isGood() {
-				return Utils::isGood(*this);
-			}
+			bool isGood();
       ResponseHeader header;
 			std::vector<StatusCode> results;
 			std::vector<DiagnosticInfo> diagnosticInfos;
@@ -173,7 +170,7 @@ namespace OWA {
 			std::vector<StatusCode> results;
 			std::vector<DiagnosticInfo> diagnosticInfos;
 
-			inline bool isGood() { return Utils::isGood(*this); } 
+			bool isGood();
     };
 
     struct RepublishRequest {

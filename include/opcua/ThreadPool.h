@@ -1,6 +1,8 @@
 // The class is originally downloaded from github: https://github.com/progschj/ThreadPool.git
 // Modifications made: 
 // 1. Included into OWA::OpcUa namespace
+// 2. Added logging messages.
+// 3. Moved constructor to the separate cpp file (to eliminate including spdlog headers from applications using this header)
 
 #ifndef THREAD_POOL_H
 #define THREAD_POOL_H
@@ -16,7 +18,6 @@
 #include <stdexcept>
 #include <iostream>
 #include "opcua/CriticalError.h"
-#include <spdlog/spdlog.h>
 
 namespace OWA {
 	namespace OpcUa {
@@ -42,47 +43,6 @@ namespace OWA {
 			std::condition_variable condition;
 			bool stop;
 		};
-		// the constructor just launches some amount of workers
-		inline ThreadPool::ThreadPool(size_t threads)
-			: stop(false)
-		{
-			if (threads < 1)
-			{
-        spdlog::critical("ThreadPool: Invalid argument ""threads""");
-        throw CriticalErrorException("ThreadPool: Invalid argument ""threads""");
-			}
-			for (size_t i = 0; i < threads; ++i)
-				workers.emplace_back(	[this, i]
-        {
-            spdlog::info("Starting thread {} of the pool", i + 1);
-						for (;;)
-						{
-							std::function<void()> task;
-							{
-								std::unique_lock<std::mutex> lock(this->queue_mutex);
-								this->condition.wait(lock,
-									[this]
-								{
-									return this->stop || !this->tasks.empty();
-								});
-								if (this->stop && this->tasks.empty()) 
-                {
-                  // spdlog::info("Stopping thread {} of the pool", i + 1);
-									return;
-								}
-								task = this->tasks.front();
-								this->tasks.pop();
-								if (tasks.size() >= 10)
-								{
-                  spdlog::warn("Pop - Thread pool task queue size is {}", tasks.size());
-								}
-							}
-							task();
-						}
-					}
-				);
-		}
-
 		template<class F, class... Args>
 		auto ThreadPool::enqueue(F&& f, Args&&... args)
 			-> std::future<typename std::result_of<F(Args...)>::type>
@@ -121,8 +81,11 @@ namespace OWA {
 				stop = true;
 			}
 			condition.notify_all();
-			for (std::thread &worker : workers)
-				worker.join();
+			for (std::thread& worker : workers)
+			{
+				if (worker.joinable())
+					worker.join();
+			}
 		}
 	}
 }

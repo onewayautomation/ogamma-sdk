@@ -212,10 +212,17 @@ namespace OWA{
 						{
 							totalSize += iter->second.second->size();
 						}
+            std::weak_ptr<Transport> wptr;
+            if (currentDataBuffer)
+              wptr = currentDataBuffer->getTransport();
 						currentDataBuffer.reset(new DataBuffer(totalSize));
+            currentDataBuffer->setTransport(wptr);
+
 						for (auto iter = chunks.begin(); iter != chunks.end(); iter++)
 						{
-							currentDataBuffer->push_back(iter->second.second);
+              {
+                currentDataBuffer->push_back(iter->second.second);
+              }
 							iter->second.second.reset();
 						}
 						return currentDataBuffer;

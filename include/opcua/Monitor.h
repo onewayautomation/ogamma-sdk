@@ -41,6 +41,9 @@ namespace OWA {
 			DataChangeTrigger trigger;
 			DeadbandType deadbandType;
 			double deadbandValue;
+			double euRange;
+			uint16_t reserved; // Can be used by the application for any purpose.
+			std::string reservedStr;
 		};
 
 		struct MonitoringParameters 
@@ -86,7 +89,7 @@ namespace OWA {
       ResponseHeader header;
 			std::vector<MonitoredItemCreateResult> results;
 			std::vector<DiagnosticInfo> diagnosticInfos;
-			inline bool isGood() { return Utils::isGood(*this); }
+			bool isGood();
 
 			typedef std::shared_ptr<CreateMonitoredItemsResponse> Ptr;
     };
@@ -121,7 +124,7 @@ namespace OWA {
       ResponseHeader header;
 			std::vector<StatusCode> results;
 			std::vector<DiagnosticInfo> diagnosticInfos;
-			inline bool isGood() { return Utils::isGood(*this); }
+			bool isGood();
 
 			typedef std::shared_ptr<DeleteMonitoredItemsResponse> Ptr;
     };

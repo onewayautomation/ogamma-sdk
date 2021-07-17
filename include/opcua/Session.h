@@ -9,7 +9,6 @@
 #include "opcua/RequestHeader.h"
 #include "opcua/ResponseHeader.h"
 #include "opcua/Enums.h"
-#include "opcua/Utils.h"
 
 #include "opcua/ApplicationDescription.h"
 #include "opcua/SecurityPolicy.h"

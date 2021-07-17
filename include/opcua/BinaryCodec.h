@@ -7,6 +7,7 @@
 #include "opcua/History.h"
 #include "opcua/Call.h"
 #include "opcua/Monitor.h"
+#include <set>
 
 namespace OWA {
   namespace OpcUa {
@@ -36,8 +37,8 @@ namespace OWA {
         void decode(TcpReadContextPtr&, std::shared_ptr<SymmetricCryptoContext>& context, std::shared_ptr<SymmetricAlgorithmSecurityHeader>& value);
 
         void encode(DataBufferPtr& buffer, FindServersRequest& value, std::shared_ptr<SymmetricCryptoContext>& context);
-        void encode(DataBufferPtr& buffer, FindServersResponse& value, std::shared_ptr<SymmetricCryptoContext>& context) {};
-        void decode(DataBufferPtr& buffer, std::shared_ptr<FindServersRequest>& value) {};
+        void encode(DataBufferPtr& , FindServersResponse& , std::shared_ptr<SymmetricCryptoContext>& ) {};
+        void decode(DataBufferPtr& , std::shared_ptr<FindServersRequest>& ) {};
         void decode(DataBufferPtr& buffer, std::shared_ptr<FindServersResponse>& value);
 
         void encode(DataBufferPtr& buffer, GetEndpointsRequest& value, std::shared_ptr<SymmetricCryptoContext>& context);
@@ -182,6 +183,7 @@ namespace OWA {
         void encode(DataBufferPtr& buffer, const int16_t& value);
 
         void encode(DataBufferPtr& buffer, const uint32_t& value);
+        void encode(DataBufferPtr& buffer, const StatusCode& value);
         void encode(DataBufferPtr& buffer, const int32_t& value);
         void encode(DataBufferPtr& buffer, const std::string& value);
         void encode(DataBufferPtr& buffer, const ByteString& value);
@@ -197,9 +199,9 @@ namespace OWA {
         void encode(DataBufferPtr& buffer, const LocalizedText& value);
         
 				template<typename Type>
-        void encode(DataBufferPtr& buffer, const std::vector<Type>& value) {
+        void encode(DataBufferPtr& buffer, const std::vector<Type>& value, bool encodeSizeAsZero = false) {
           if (value.empty()) {
-            encode(buffer, (int32_t)-1);
+            encode(buffer, (int32_t) (encodeSizeAsZero ? 0 : -1) );
           }
           else {
             encode(buffer, (int32_t)value.size());
@@ -235,7 +237,7 @@ namespace OWA {
 				void encode(DataBufferPtr& buffer, const MonitoredItemCreateRequest& value);
 				void encode(DataBufferPtr& buffer, const MonitoringParameters& value);
 				void encode(DataBufferPtr& buffer, const SubscriptionAcknowledgement& value);
-
+        void encode(DataBufferPtr& buffer, const std::set<uint16_t>& value);
         void decode(DataBufferPtr& buffer, uint8_t& value);
         void decode(DataBufferPtr& buffer, int8_t& value);
         void decode(DataBufferPtr& buffer, uint16_t& value);
@@ -273,6 +275,7 @@ namespace OWA {
 				void decode(DataBufferPtr& buffer, NotificationMessage& value);
 				void decode(DataBufferPtr& buffer, ExtensionObject::Ptr& value);
 				void decode(DataBufferPtr& buffer, MonitoredItemNotification& value);
+        void decode(DataBufferPtr& buffer, std::set<uint16_t>& value);
 
 				void encodeHeader(DataBufferPtr& buffer, ChannelSecurityToken& token, uint32_t& sequenceHeaderPosition);
 
@@ -289,12 +292,41 @@ namespace OWA {
           encode(buffer, value.header);
         }
 
+        uint32_t getMaxArrayLength(const ApplicationDescription*)
+        {
+          // Max number of ApplicationDescriptions returned in the FindServers response.
+          return 1024;
+        }
+
+        uint32_t getMaxArrayLength(const EndpointDescription*)
+        {
+          // Max number of ApplicationDescriptions returned in the FindServers response.
+          return 1024;
+        }
+
+        template<typename ArrayElementType>
+        uint32_t getMaxArrayLength(const ArrayElementType* value)
+        {
+          (void)value;
+          // this->cryptor->securityPolicy->getPolicyId().None
+          return 1024*1024;
+        }
+
         template<typename ArrayElementType>
         void decode(DataBufferPtr& buffer, std::vector<ArrayElementType>& value) {
           value.clear();
           int32_t length;
           decode(buffer, length);
-          if (length > 0) {
+          if (length > 0) 
+          {
+            if (length > (int32_t) getMaxArrayLength((ArrayElementType*) 0))
+            {
+
+            }
+
+            if ((buffer->size() - buffer->getPosition()) < (uint32_t) length )
+              throw OperationResult(StatusCode::BadDecodingError, "Invalid array length.");
+
             value.reserve(length);
           }
           for (int index = 0; index < length; index++) {

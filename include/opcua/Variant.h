@@ -17,8 +17,13 @@
 #include "opcua/DiagnosticInfo.h"
 #include <stdexcept>
 
+#include "opcua/DataBuffer.h"
+#include "opcua/StructuredTypeDefinition.h"
+
 namespace OWA {
 	namespace OpcUa {
+		class BinaryCodec;
+		class DataChangeFilter;
 
 		// TODO!!!
 		class XmlElement : public std::string 
@@ -28,6 +33,30 @@ namespace OWA {
 			XmlElement(const std::string& other);
 			XmlElement(const XmlElement& other);
 			virtual ~XmlElement() {}
+		};
+
+		struct Variant;
+
+		struct ExpandedComplexValue
+		{
+			ExpandedComplexValue();
+			ExpandedComplexValue(const std::vector <std::pair<std::string, OWA::OpcUa::Variant> >& other);
+			virtual ~ExpandedComplexValue();
+			bool operator==(const ExpandedComplexValue& other) const;
+			std::vector <std::pair<std::string, OWA::OpcUa::Variant> > expandedValue;
+		};
+
+		struct ComplexTypeFilter
+		{
+			ComplexTypeFilter();
+			ComplexTypeFilter(const ComplexTypeFilter& other);
+			ComplexTypeFilter(const std::map<std::string, OWA::OpcUa::Variant>& other);
+			virtual ~ComplexTypeFilter();
+			bool operator==(const ComplexTypeFilter& other) const;
+			std::map<std::string, OWA::OpcUa::Variant> filters;
+			
+			// Custom name:
+			std::string name;
 		};
 
 		struct Variant {
@@ -58,6 +87,11 @@ namespace OWA {
 				T_DataValue = 23, // A data value with an associated status code and timestamps.
 				T_Variant = 24, // A union of all of the types specified above.
 				T_DiagnosticInfo = 25, // A structure that contains detailed error and diagnostic information associated with a StatusCode.
+
+				T_ComplexValue = 30,
+
+				T_DataChanfeFilter = 31,	// Data Change filter for a single member
+				T_ComplexTypeFilter = 32	// Map of filters for multiple members of the complex type value
 			};
 			union VariantValue {
 				VariantValue();
@@ -86,7 +120,7 @@ namespace OWA {
 				ExtensionObject::Ptr extensionObject;
 				// DataValue	dataValue;
 				DiagnosticInfo diagnosticInfo;
-				//Variant	variant;
+				// std::shared_ptr<Variant> variantArray;
 				std::vector<bool> BooleanArray;
 				std::vector<int8_t> SByteArray;
 				std::vector<uint8_t> ByteArray;
@@ -111,6 +145,12 @@ namespace OWA {
 				std::vector<ExtensionObject::Ptr> extensionObjectArray;
 				std::vector<DiagnosticInfo> diagnosticInfoArray;
 				std::vector<Variant> variantArray;
+
+				ExpandedComplexValue complexValue;
+				std::vector<ExpandedComplexValue> complexValueArray;
+
+				std::shared_ptr<DataChangeFilter> dataChangeFilter;
+				std::shared_ptr<ComplexTypeFilter> complexTypeFilter;
 			};
 
 			// Member variables
@@ -171,6 +211,14 @@ namespace OWA {
 			Variant(const std::vector<LocalizedText>& other);
 			Variant(const std::vector<ExtensionObject::Ptr>& other);
 			Variant(const std::vector<DiagnosticInfo>& other);
+			Variant(const std::vector <std::pair<std::string, OWA::OpcUa::Variant>>& other);
+			
+			Variant(const ExpandedComplexValue& other);
+			Variant(const std::vector<ExpandedComplexValue>& other);
+
+			Variant(const std::shared_ptr<DataChangeFilter>& other);
+			Variant(const std::shared_ptr<ComplexTypeFilter>& other);
+
 			Variant(const std::vector<Variant>& other);
 
 			~Variant();
@@ -201,6 +249,13 @@ namespace OWA {
 			Variant& operator=(const LocalizedText& other);
 			Variant& operator=(const ExtensionObject::Ptr& other);
 			Variant& operator=(const DiagnosticInfo& other);
+			Variant& operator=(const std::vector <std::pair<std::string, OWA::OpcUa::Variant> >& other);
+			Variant& operator=(const ExpandedComplexValue& other);
+			Variant& operator=(const std::vector<ExpandedComplexValue>& other);
+			
+			Variant& operator=(const std::shared_ptr<DataChangeFilter>& other);
+			Variant& operator=(const std::shared_ptr<ComplexTypeFilter>& other);
+
 			Variant& operator=(const Variant& other);
 			
 			Variant& operator=(const std::vector<bool>);
@@ -234,11 +289,19 @@ namespace OWA {
 			void clear();
 			std::string toString(size_t maxSize = 256) const;
 			
+			std::string elementToString(int32_t index) const;
+			
 			static std::string toString(const dataType type);
+			static dataType typeFromString(const std::string typeName);
 
 			// converts to float is possible, otherwise throws exception:
 			float toFloat() const;
 			double toDouble() const;
+			
+			// If this is array, convert element with given index to double:
+			double elementToDouble(int32_t index) const;
+
+			std::vector<double> toDoubleArray() const;
 
 			// Returns true, if data type is boolean or numeric, and either scalar or array with length 1.
 			bool isNumeric() const;
@@ -267,6 +330,7 @@ namespace OWA {
 			operator LocalizedText() const;
 			operator ExtensionObject::Ptr() const;
 			operator DiagnosticInfo() const;
+			operator std::vector <std::pair<std::string, OWA::OpcUa::Variant> >() const;
 			
 			/* Parses string to convert it to current data type of the variant. If it is empty, then assigns as string
 			If cannot convert, returns false */
@@ -277,6 +341,23 @@ namespace OWA {
 				ConversionException(const std::string& textMessage);
 			};
 
+      bool decode(std::shared_ptr<BinaryCodec>& codec, std::shared_ptr<NamespaceManager>& nsManager, 
+				std::shared_ptr<DataBuffer>& buffer, FieldType& fieldType, Variant& result) const;
+
+      // Expands complex type data value into components.
+      std::shared_ptr<ExpandedComplexValue> expand(std::shared_ptr<NamespaceManager> nsManager) const;
+
+			std::string toJson(std::shared_ptr<NamespaceManager> nsManager = std::shared_ptr<NamespaceManager>(), int level = 0) const ;
+
+			bool isComplexValue() const;
+			bool isExtensionObject() const;
+			bool isStructureDefinition() const;
+			std::shared_ptr<StructureDefinition> toStructureDefinition() const;
+		protected:
+			bool expand(std::shared_ptr<NamespaceManager> nsManager, std::shared_ptr<BinaryCodec> codec, const ExtensionObject::Ptr& src,  ExpandedComplexValue& dst) const;
+
+			bool decodeFields(std::shared_ptr<NamespaceManager>& nsManager, std::shared_ptr<BinaryCodec>& codec, DataBufferPtr& buffer,
+				std::shared_ptr<StructuredTypeDefinition>& std, ExpandedComplexValue& dst) const;
 		private: 
 			void init();
 		};

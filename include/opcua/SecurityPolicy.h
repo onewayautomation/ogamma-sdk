@@ -56,6 +56,7 @@ namespace OWA {
       uint16_t getSymmPlainTextBlockSize();
 
       uint16_t getCreateSessionClientNonceSize();
+      SecurityPolicyId getId();
     protected:
       static std::vector<int32_t> derivedSignatureKeyLength;
       static std::vector<int32_t> minAsymmetricKeyLength;

@@ -1,1 +1,0 @@
-Unzip content of the library binary files archive (ogamma-sdk-1.0.5.zip) into this folder.

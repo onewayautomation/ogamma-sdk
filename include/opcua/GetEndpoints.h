@@ -60,7 +60,8 @@ namespace OWA {
     };
 
     struct EndpointDescription {
-      EndpointDescription() :securityLevel(0) {};
+      EndpointDescription() :securityLevel(0), securityMode(MessageSecurityMode::None) {};
+      std::string getShortSecurityPolicy();
 
       // The URL for the Endpoint described.
       std::string endpointUrl;

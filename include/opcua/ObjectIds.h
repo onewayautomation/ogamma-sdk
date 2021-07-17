@@ -89,6 +89,9 @@ namespace OWA {
 			ReferenceTypesFolder = 91,
 			XmlSchema_TypeSystem = 92,
 			OPCBinarySchema_TypeSystem = 93,
+			DataTypeDefinition = 97,
+			StructureDefinition = 99,
+			StructureField = 101,
 			DataTypeDescriptionType_DataTypeVersion = 104,
 			DataTypeDescriptionType_DictionaryFragment = 105,
 			DataTypeDictionaryType_DataTypeVersion = 106,
@@ -100,6 +103,10 @@ namespace OWA {
 			ModellingRule_MandatoryShared_NamingRule = 116,
 			HasSubStateMachine = 117,
 			NamingRuleType = 120,
+			
+			DataTypeDefinition_Encoding_DefaultBinary = 121,
+			StructureDefinition_Encoding_DefaultBinary = 122,
+
 			IdType = 256,
 			NodeClass = 257,
 			Node = 258,
@@ -4892,6 +4899,8 @@ namespace OWA {
 			OpcUa_BinarySchema_DoubleComplexNumberType = 12186,
 			OpcUa_BinarySchema_DoubleComplexNumberType_DataTypeVersion = 12187,
 			OpcUa_BinarySchema_DoubleComplexNumberType_DictionaryFragment = 12188,
+			Union = 12756,
+			StructureField_Encoding_DefaultBinary = 14844
 		};
 	}
 }

@@ -10,6 +10,7 @@
 #include "opcua/GetEndpoints.h"
 #include "opcua/UserIdentityToken.h"
 #include "opcua/TransportSettings.h"
+#include "opcua/Call.h"
 
 namespace OWA {
   namespace OpcUa {
@@ -25,14 +26,27 @@ namespace OWA {
 				this->applicationUri = ad.applicationUri;
 				this->productUri = ad.productUri;
 				this->discoveryUrls = ad.discoveryUrls;
+			  this->gatewayServerUri = ad.gatewayServerUri;
 				return *this;
 			}
+			operator ApplicationDescription() const;
+
       std::string endpointUrl;
+			
+			
+			/* The URL used when the object was created. This might be IP address, or host name of the Docker host machine
+			   It allows to create initial connection to call FindServers and GetEndpoints */
+			std::string originalEndpointUrl;
+
+			/* Cached endpoint URL. */
+			std::string lastSuccessfulEndpointUrl;
+
       std::string productUri;
       std::string applicationUri;
       std::string applicationName;
       std::vector<std::string> discoveryUrls; // Returned by FindServers call. Used to call GetEndpoints.
       std::string localDiscoveryServerUrl; // Used to call FindServers on Local Discovery Server. If empty, the discoveryUrls is used.
+			std::string gatewayServerUri;
     };
 	  
     struct ConnectionSettings {
@@ -54,6 +68,7 @@ namespace OWA {
 
 			// Timeouts for various kinds of requests
 			uint32_t timeoutConnection;
+			uint32_t timeoutHostNameResolution;
 			uint32_t timeoutChannel;
 			uint32_t timeoutDiscovery;
 			uint32_t timeoutBrowse;
@@ -61,6 +76,13 @@ namespace OWA {
 			uint32_t timeoutWrite;
 			uint32_t timeoutPublish;
 			uint32_t timeoutCall;
+			
+			uint32_t timeoutCreateSession;
+			uint32_t timeoutActivateSession; //NEW
+
+			uint32_t timeoutCreateSubscription; //NEW
+			uint32_t timeoutCreateMonitoredItems; //NEW
+
 			uint32_t timeoutCloseSession;
 
 			// Timeout for other requests for which no default value is defined:
@@ -78,6 +100,13 @@ namespace OWA {
 
 			// If this option is true, then in case of connection problems it would try to use host name which was used in GetEndpoints or FindServers call.
 			bool useGetEndpointsHostName;
+
+			// Total number of browse references
+			uint32_t browseTotalReferences;
+			uint32_t browseTotalTimeout;
+
+			// Flag telling if stale connection / disconnection transactions should be monitored. 
+			bool monitorStaleTransactions;
 	  };
 
     struct ClientConfiguration {
@@ -85,9 +114,17 @@ namespace OWA {
 			ClientConfiguration(const std::string& endpointUrl, bool createSession = false);
 			ClientConfiguration& operator=(const ClientConfiguration& other);
 
-      std::string getDiscoveryUrl(RequestResponseTypeId forRequestType, const std::string& protocol = Protocol::tcp);
+			// Get URL which is used for validation of the connection ( particularly, sent in HelloMessage and CreateSession, 
+			// and used to validate URL in certificate. 
+			std::string getDiscoveryUrl(RequestResponseTypeId forRequestType, const std::string& protocol = Protocol::tcp);
+			
+			std::string getUrlForProtocol(const std::vector<std::string>& urls, const std::string& protocol = Protocol::tcp);
 
-			std::string getName();
+			// Resets cached values (server certificate, obtained from the server endpoint URLs, etc,), to start connection process from scratch.
+			// Can be called after failing connection attempts.
+			void Reset();
+
+			std::string getName() const;
 
       ApplicationDescription applicationDescription;
       CertificateSettings certificateSettings;
@@ -96,6 +133,10 @@ namespace OWA {
 	    ConnectionSettings connectionSettings;
       Duration requestedSessionTimeout;
       uint32_t maxResponseMessageSize;
+			uint32_t maxMonitoredItemsPerSubscription;
+			
+			ApplicationDescription	serverDescription; // As returned in the findServers response.
+			EndpointDescription			serverEndpointDescription; // As returned by the server in the GetEndpoints request, and selected for connection.
 
       bool createSession; // If true, a session will be created and activated on server. Otherwise, just secure channel is opened.
 
@@ -108,6 +149,34 @@ namespace OWA {
 			std::vector<std::string> localeIds;
 
 			std::shared_ptr<UserIdentityToken> identityToken;
+			
+			/* If this option is true, then clientCertificate field in the Create Session call will be empty if the connection security mode is none */
+			bool doNotSendCertInCreateSessionIfSecModeNone;
+
+			/* DNS Resolver Map, used to substitute host name returned by FindServers or GetEndpoints response. */
+			std::map<std::string, std::string> dnsMap;
+
+			/* EndpointURL map. Used to substitute whole endpoint URLm including protocol and port number.*/
+			std::map<std::string, std::string> urlMap;
+
+			// If true, after ActivateSession call it will read type information as defined by OPC UA spec. version 1.04 and initialize NamespaceManager with that.
+			// (Under node Types/Data Types/OPC Binary)
+			bool readXmlTypeDictionaryOnConnect;
+
+			// If true, after Activate Session call it will read data type definitions under node Types / Data types / Base Data Type / Structure.
+			bool readTypeDefinitionsOnConnect;
+
+			// Maximum depth of subtypes allowed.
+			uint16_t maxSubtypeDepth;
+
+			// If true, some errors occurred during reading of data type definitions, will be ignored.
+			bool ignoreTypeDefinitionReadErrors;
+			
+			uint32_t timeoutGetServerInfo; // Timeout to read namespace array, initialize NamespaceManager after ActivateSession call. 
+
+			// List of methods to call after ActivateSession - to initialize the server.
+			std::vector<CallMethodRequest> methodsToCall;
+
 		private:
 			void init();
     };

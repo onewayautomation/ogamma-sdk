@@ -21,10 +21,20 @@
 
 #include <spdlog/spdlog.h>
 
+// In Windows, error code 995 means it was canceled (not actual timeout happened).
+// In Linux Ubuntu 18.04 error code in case of cancellation os 125.
+#ifdef WIN32
+#define CANCEL_CODE 995
+#else
+#define CANCEL_CODE 125
+#endif
+
 namespace OWA {
 	namespace OpcUa {
 		class Timer;
 		struct EndpointDescription;
+		class Connection;
+		class BinaryCodec;
 
 		namespace Utils
 		{
@@ -60,11 +70,23 @@ namespace OWA {
 				return StatusCodeUtil::toString(code, includeCode);
 			}
 
-      void initSdk(const std::string& logFileName = "./data/logs/OpcUaSdk-client-Log.txt", uint16_t level = 0,
-        int numberOfIoThreads = 1, int numberOfCallbackThreads = 2, size_t maxFileSize = 8*1024*1024, size_t maxFileNumber = 10);
+      void initSdk(
+				const std::string& logFileName = "./data/logs/OpcUaSdk-client-Log.txt", 
+				uint16_t level = 0,
+        int numberOfIoThreads = 1, 
+				int numberOfCallbackThreads = 2,
+				int numberOfTimerThreads = 2,
+				size_t maxFileSize = 8*1024*1024, 
+				size_t maxFileNumber = 10);
 
-      void initSdk(int numberOfIoThreads, int numberOfCallbackThreads, const std::string& logFileName, uint16_t level, 	
-				 size_t maxFileSize, size_t maxFileNumber);
+      void initSdk(
+				int numberOfIoThreads, 
+				int numberOfCallbackThreads, 
+				int numberOfTimerThreads,
+				const std::string& logFileName, 
+				uint16_t level, 	
+				size_t maxFileSize, 
+				size_t maxFileNumber);
 
 			// Returns time given ms from now.
 			std::chrono::time_point<std::chrono::steady_clock> getTimeNowPlusMilliSeconds(uint32_t ms);
@@ -90,7 +112,7 @@ namespace OWA {
 
 			std::chrono::system_clock::time_point convert(const boost::posix_time::ptime& from);
 
-      void initThreadPool(int numberOfThreads = 1);
+      void initThreadPool(int numberOfThreads = 2);
       std::shared_ptr<ThreadPool> getThreadPool();
 
 			void closeThreadPool();			
@@ -109,6 +131,9 @@ namespace OWA {
 			int32_t readFileToString(const std::string& fileName, std::string& content);
 			std::string saveStringToFile(const std::string& value, const std::string& fileName);
 
+			std::string saveBytesToFile(const std::vector<uint8_t>& content, const std::string& fileName);
+			std::string readBytesFromFile(const std::string& fileName, std::vector<uint8_t>& content);
+
 			void copyFileIfDoesNotExist(const std::string& defaultFile, const std::string& targetFile);
 
 			std::string getHostName();
@@ -116,8 +141,46 @@ namespace OWA {
 			std::string toString(NodeClass);
 
 			std::string toString(spdlog::level::level_enum logLevel);
+			std::string toString(const SecurityPolicyId id, bool shortForm = true);
 
 			bool fileExists(const std::string& fileName);
+
+			std::string combinePath(const std::string& path1, const std::string& path2);
+
+			std::string getFilesInFolder(const std::string& folderName, std::vector<std::string>& result);
+
+			std::string deleteFile(const std::string& fileName);
+
+			std::vector<std::string> splitString(const std::string& str, const char delimiter, const uint16_t maxTimes = 0xFFFF, const char escapeCharacter = '\0');
+
+			/**
+			 * Combine whole string from vector of strings, optionally separating them be delimiter (if it is not 0).
+			 */
+			std::string combineToString(const std::vector<std::string>& parts, const char delimiter = '\0');
+
+			/**
+			 * separate host name part from DNS name (the very first part delimited by dot ('.')).
+			 */
+			std::string getHostNameFromDns(const std::string dns);
+
+			std::string changeFileExtension(const std::string& fileName, const std::string& newExtension);
+
+			std::string toHex(const std::vector<uint8_t>& bytes);
+
+			bool isCertificateValidationError(OWA::OpcUa::StatusCode statusCode);
+			bool hostNameCanBeResolved(const std::string& endpointUrl, uint32_t timeout = 5000);
+
+			bool urlDecode(const std::string& in, std::string& out);
+
+			// Returns folder where log files are written to. Default value is ./data/logs. It is initialized in the initSdk call.
+			std::string getLogFolder();
+
+      std::string escapeString(const std::string& str, std::set<char> charsToEscape, const char escapeCharacter);
+
+      std::string unEscapeEstring(const std::string& str, const char escapeCharacter);
+
+			// Removes ending characters from string.
+			std::string removeTrailingSymbol(const std::string& str, const std::string& symbols);
 		}
 	}
 }

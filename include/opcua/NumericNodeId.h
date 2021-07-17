@@ -14,8 +14,18 @@ namespace OWA { namespace OpcUa {
 			Empty = 0,
 			ByteString = 15,
 			XmlElement = 16,
+
+			NonHierarchicalReferences = 32,
 			HierarchicalReferences = 33,
+			
+			HasModellingRule = 37,
+			HasEncoding = 38,
+			HasDescription = 39,
+			HasTypeDefinition = 40,
+			GeneratesEvent = 41,
+
 			RootFolder = 84,
+			OpcBinary = 93,
 
 			AnonymousIdentityToken = 319,
 			AnonymousIdentityToken_Encoding_DefaultBinary = 321,

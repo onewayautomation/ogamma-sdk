@@ -8,6 +8,7 @@
 #include <botan/x509self.h>
 #include <map>
 #include "opcua/Enums.h"
+#include "opcua/OpcUaCertificateStore.h"
 
 namespace OWA {
   namespace OpcUa {
@@ -23,6 +24,7 @@ namespace OWA {
 			std::map<std::string, std::string> privateKeyFileName;
       bool generate;
       Botan::X509_Cert_Options options;
+      OpcUaCertificateStore::ValidationRules validationRules;
     };
   }
 }

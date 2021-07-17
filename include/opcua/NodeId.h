@@ -39,6 +39,7 @@ namespace OWA {
 			NodeId(Ids::NumericNodeId standardNumericNodeId);
 			NodeId& operator=(const NodeId& other);
       bool operator==(const NodeId& other) const;
+      bool operator!=(const NodeId& other) const;
 			bool operator<(const NodeId& other) const;
       virtual ~NodeId();
 
@@ -64,7 +65,7 @@ namespace OWA {
 			std::string toString(bool skipNamespaceIndex = false) const;
 			
 			bool parse(const std::string& valueAsString);
-    
+      bool isNull() const;
 		protected:
       uint16_t          namespaceIndex;
       IdentifierType    identifierType;

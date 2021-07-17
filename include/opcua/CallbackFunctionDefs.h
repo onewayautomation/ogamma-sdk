@@ -10,14 +10,13 @@
 #include "opcua/OperationResult.h"
 #include "opcua/Enums.h"
 #include "opcua/Subscribe.h"
+#include "opcua/ConnectDisconnectContext.h"
 
 namespace OWA { namespace OpcUa {
   /**
   * Defines type of callback function used to notify about connect / disconnect events.
   */
-  typedef std::function <void(const OperationResult& result)> generalCallback;
-
-  typedef std::function <void(const std::string& endpointUrl, ConnectionState state, const OperationResult& result)> connectionStateChangeCallback;
+    typedef std::function <void(const std::string& endpointUrl, ConnectionState state, const OperationResult& result)> connectionStateChangeCallback;
 
   /**
   * The onResponseCallback is usually used to make a callback when a response received for the request.

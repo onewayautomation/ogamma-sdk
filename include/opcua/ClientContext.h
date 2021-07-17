@@ -52,25 +52,5 @@ namespace OWA {
 			void* request;
 			std::chrono::time_point<std::chrono::system_clock> expireTime;
 		};
-
-		struct ConnectionDisconnectContext
-		{
-			ConnectionDisconnectContext(const ConnectionDisconnectContext&) = delete;
-			ConnectionDisconnectContext& operator=(const ConnectionDisconnectContext&) = delete;
-
-			ConnectionDisconnectContext(
-				generalCallback callback_, ConnectionState nextState_
-      );
-
-			ConnectionDisconnectContext& addCallback(generalCallback callback_);
-			ConnectionDisconnectContext& complete(const OperationResult& operationResult);
-
-
-			std::promise<OperationResult> promise;
-			std::vector<generalCallback> callbacks;
-      std::shared_future<OperationResult> future;
-			// NextState defines transaction type: if Connected, then it is connect transaction, otherwise, disconnect transaction.
-			ConnectionState nextState;
-		};
 	}
 }

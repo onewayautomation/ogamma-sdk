@@ -29,9 +29,9 @@ namespace OWA {
 			void revise()
 			{
 				if (receiveBufferSize == 0)
-					receiveBufferSize = 0xFFFFFFFF;
+					receiveBufferSize = 128 * 1024 * 1024; // 128 Mb 0xFFFFFFFF;
 				if (sendBufferSize == 0)
-					sendBufferSize = 0xFFFFFFFF;
+					sendBufferSize = 128 * 1024 * 1024; // 0xFFFFFFFF;
 				if (maxReceiveMessageSize == 0)
 					maxReceiveMessageSize = 0xFFFFFFFF;
 				if (maxSendMessageSize == 0)

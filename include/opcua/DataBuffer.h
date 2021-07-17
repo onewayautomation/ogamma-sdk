@@ -9,14 +9,13 @@
 #include <stdint.h>
 #include <memory>
 #include <functional>
-#include "opcua/Transport.h"
 #include "opcua/ByteString.h"
 
 namespace OWA {
   namespace OpcUa {
 		class Transport;
 		struct EncodedExtensionObject;
-		class DataBuffer {
+		class DataBuffer: public std::enable_shared_from_this<DataBuffer> {
 			friend Transport;
 			friend EncodedExtensionObject;
     public:
@@ -50,10 +49,13 @@ namespace OWA {
       uint32_t getNumberOfChunks();
 			uint32_t getSecurityRequestId();
 			void setTransport(std::weak_ptr<Transport> transport);
+			std::weak_ptr<Transport> getTransport();
 			void setSecurityRequestId(uint32_t id);
 			void push_back(std::shared_ptr<DataBuffer>& other);
       void setSequenceHeaderPosition();
       uint32_t getSequenceHeaderPosition();
+			bool getSendInProgress();
+			void setSendInProgress(bool value);
     protected:
 			void init();
       std::vector<uint8_t> buffer; 
@@ -64,6 +66,9 @@ namespace OWA {
 			char messageFlag;
 			uint32_t securityRequestId;
       uint32_t sequenceHeaderPosition;
+			
+			// Flag to indicate that the buffer is being sent. If true, then "finalize massage" will not trigger another send when adding signature to the buffer.
+			bool sendInProgress;
     };
 
     typedef std::shared_ptr<DataBuffer> DataBufferPtr;

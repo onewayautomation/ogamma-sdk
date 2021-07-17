@@ -202,6 +202,13 @@ namespace OWA {
 				time_events.clear();
 			}
 			
+			bool hasTimer(const timer_id id) {
+				scoped_m lock(m);
+				if (events.find(id) != events.end())
+					return true;
+				else
+					return false;
+			}
 			/**
 			* Add a new timer.
 			*
@@ -285,45 +292,47 @@ namespace OWA {
 
 		private:
 			void run() {
-				scoped_m lock(m);
+				{
+					scoped_m lock(m);
 
-				while (!done) {
+					while (!done) {
 
-					if (time_events.empty()) {
-						// Wait for work
-						cond.wait(lock);
-					}
-					else {
-						detail::Time_event te = *time_events.begin();
-						if (clock::now() >= te.next) {
-
-							auto nextTask = events[te.ref].handler;
-							auto nextTaskId = te.ref;
-
-							// Remove time event from the queue:
-							time_events.erase(time_events.begin());
-
-							if (events[te.ref].valid && events[te.ref].period.count() > 0) {
-								// The event is valid and a periodic timer.
-								te.next += events[te.ref].period;
-								time_events.insert(te);
-							}
-							else 
-							{
-								// The event is either no longer valid because it was removed in the
-								// callback, or it is a one-shot timer.
-								auto e = events.find(te.ref);
-								if (e != events.end())
-								{
-									events.erase(e);
-								}
-							}
-							lock.unlock();
-							threadPool->enqueue(nextTask, nextTaskId);
-							lock.lock();
+						if (time_events.empty()) {
+							// Wait for work
+							cond.wait(lock);
 						}
 						else {
-							cond.wait_until(lock, te.next);
+							detail::Time_event te = *time_events.begin();
+							if (clock::now() >= te.next) {
+
+								auto nextTask = events[te.ref].handler;
+								auto nextTaskId = te.ref;
+
+								// Remove time event from the queue:
+								time_events.erase(time_events.begin());
+
+								if (events[te.ref].valid && events[te.ref].period.count() > 0) {
+									// The event is valid and a periodic timer.
+									te.next += events[te.ref].period;
+									time_events.insert(te);
+								}
+								else
+								{
+									// The event is either no longer valid because it was removed in the
+									// callback, or it is a one-shot timer.
+									auto e = events.find(te.ref);
+									if (e != events.end())
+									{
+										events.erase(e);
+									}
+								}
+								lock.unlock();
+								threadPool->enqueue(nextTask, nextTaskId);
+								lock.lock();
+							}
+							else {
+								cond.wait_until(lock, te.next);
+							}
 						}
 					}
 				}

@@ -21,6 +21,7 @@ namespace OWA {
 			NodeId objectId;
 			NodeId methoddId;
 			std::vector<Variant> inputArguments;
+			boost::any		context;
 		};
 
 		struct CallMethodResult
@@ -31,6 +32,7 @@ namespace OWA {
 			std::vector<StatusCode> inputArgumentResults;
 			std::vector<DiagnosticInfo> inputArgumentDiagnosticInfos;
 			std::vector<Variant> outputArguments;
+
 		};
 
     struct CallRequest {

@@ -14,6 +14,7 @@ namespace OWA {
     class ExpandedNodeId {
     public:
       ExpandedNodeId();
+      ExpandedNodeId(const NodeId& other);
 			ExpandedNodeId(const ExpandedNodeId& other);
       ExpandedNodeId(RequestResponseTypeId id);
       ExpandedNodeId(Ids::NumericNodeId id);

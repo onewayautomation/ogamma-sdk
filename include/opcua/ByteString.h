@@ -30,7 +30,7 @@ namespace OWA {
 			bool operator==(const ByteString& other);
 
 			std::string toString(size_t maxElements = 10) const;
-			
+			bool parse(const std::string& strValue);
 			virtual ~ByteString() { }
     };
 

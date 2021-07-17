@@ -11,7 +11,6 @@
 #include "opcua/Enums.h"
 #include "opcua/NumericNodeId.h"
 #include "opcua/DataValue.h"
-#include "opcua/Utils.h"
 #include <boost/any.hpp>
 #include "opcua/History.h"
 
@@ -65,7 +64,7 @@ namespace OWA {
       ResponseHeader header;
 			std::vector<DataValue> results;
 			std::vector<DiagnosticInfo> diagnosticInfos;
-			inline bool isGood() { return Utils::isGood(*this);}
+			bool isGood();
 			typedef std::shared_ptr<ReadResponse> Ptr;
 			~ReadResponse() {
 			}
@@ -98,7 +97,7 @@ namespace OWA {
       ResponseHeader header;
 			std::vector<StatusCode> results;
 			std::vector<DiagnosticInfo> diagnosticInfos;
-			inline bool isGood() { return Utils::isGood(*this); }
+			bool isGood();
     };
 
 		struct HistoryReadValueId
@@ -139,7 +138,7 @@ namespace OWA {
       ResponseHeader header;
 			std::vector<HistoryReadResult> results;
 			std::vector<DiagnosticInfo> diagnosticInfos;
-			inline bool isGood() { return Utils::isGood(*this); }
+			bool isGood();
 			typedef std::shared_ptr<HistoryReadResponse> Ptr;
     };
 
@@ -157,7 +156,7 @@ namespace OWA {
     };
     struct HistoryUpdateResponse {
       ResponseHeader header;
-			inline bool isGood() { return Utils::isGood(*this); }
+			bool isGood();
 
 			std::vector<HistoryUpdateResult>	results;
 			std::vector<DiagnosticInfo>				diagnosticInfos;

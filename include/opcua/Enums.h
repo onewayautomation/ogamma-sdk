@@ -218,6 +218,10 @@ namespace OWA {
         return (policyId != other.policyId || messageSecurityMode != other.messageSecurityMode);
       }
 
+      bool requiresCertificate() {
+        return (messageSecurityMode == MessageSecurityMode::Sign) || (messageSecurityMode == MessageSecurityMode::SignAndEncrypt);
+      }
+
       SecurityPolicyId policyId;
       MessageSecurityMode messageSecurityMode;
     };
@@ -236,10 +240,23 @@ namespace OWA {
 			Neither = 3,	// Return neither timestamp.  This is the default value for MonitoredItems if a Variable value is not being accessed.
 											// For HistoryRead this is not a valid setting.
 		};
+
 		struct QualifiedName {
 			QualifiedName() {
 				namespaceIndex = 0;
 			}
+      QualifiedName(const std::string& name_, uint16_t index_ = 0): name(name_), namespaceIndex(index_)
+      {
+      }
+      QualifiedName(const std::string& name_) : name(name_), namespaceIndex(0)
+      {
+
+      }
+      QualifiedName(const char* name_) : name(name_ == nullptr ? "" : name_), namespaceIndex(0)
+      {
+
+      }
+
 			bool operator==(const QualifiedName& other) const
 			{
 				if (this == &other)
@@ -252,6 +269,80 @@ namespace OWA {
 				}
 				return false;
 			}
+      bool operator!=(const QualifiedName& other) const
+      {
+        return !(*this == other);
+      }
+      
+      bool operator==(const char* other) const
+      {
+        if (namespaceIndex == 0 && name == other)
+        {
+          return true;
+        }
+        return false;
+      }
+      bool operator==(const std::string& other) const
+      {
+        if (namespaceIndex == 0 && name == other)
+        {
+          return true;
+        }
+        return false;
+      }
+
+      bool operator<(const QualifiedName& other) const
+      {
+        if (this == &other)
+          return false;
+        if (namespaceIndex < other.namespaceIndex)
+          return true;
+        else if (namespaceIndex > other.namespaceIndex)
+          return false;
+        if (name < other.name)
+          return true;
+        return false;
+      }
+      bool operator<=(const QualifiedName& other) const
+      {
+        if (this == &other)
+          return true;
+        
+        if (namespaceIndex < other.namespaceIndex)
+          return true;
+        else if (namespaceIndex > other.namespaceIndex)
+          return false;
+
+        if (name <= other.name)
+          return true;
+        return false;
+      }
+      bool operator>(const QualifiedName& other) const
+      {
+        if (this == &other)
+          return false;
+        if (namespaceIndex > other.namespaceIndex)
+          return true;
+        else if (namespaceIndex < other.namespaceIndex)
+          return false;
+        if (name > other.name)
+          return true;
+        return false;
+      }
+      bool operator>=(const QualifiedName& other) const
+      {
+        if (this == &other)
+          return true;
+        if (namespaceIndex > other.namespaceIndex)
+          return true;
+        else if (namespaceIndex < other.namespaceIndex)
+          return false;
+
+        if (name >= other.name)
+          return true;
+        return false;
+      }
+
 			std::string toString() const { 
 				std::stringstream s;
 				if (namespaceIndex > 0)
@@ -262,6 +353,21 @@ namespace OWA {
 
 				return s.str();
 			}
+
+      bool parse(const std::string& value);
+
+      QualifiedName& operator=(const std::string& name_) {
+        this->name = name_;
+        return *this;
+      }
+      QualifiedName& operator=(const char* name_) {
+        this->name = name_ != nullptr ? name_ : "";
+        return *this;
+      }
+
+      bool isEmpty() {
+        return this->namespaceIndex == 0 && this->name.empty();
+      }
 			uint16_t namespaceIndex;
 
 		// protected:
@@ -335,7 +441,12 @@ namespace OWA {
 			minimumSamplingInterval	= 19,
 			historizing			= 20,
 			executable			= 21,
-			userExecutable	= 22
+			userExecutable	= 22,
+      dataTypeDefinition = 23,
+      rolePermissions = 24,
+      userRolePermissions = 25,
+      accessRestrictions = 26,
+      accessLevelEx = 27
 		};
 
 		// NodeClass enum values are defined in Part 3.
