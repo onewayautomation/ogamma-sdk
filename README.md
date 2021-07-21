@@ -5,7 +5,7 @@ C++ OPC UA SDK from One-Way Automation - binary version redistributables.
 ## Summary
 This SDK is intended to extremely simplify creation of OPC UA Client and Server Applications in modern C++. The plan is to implement OPC UA communication stack and provide high level classes to asynchronously send, receive and handle OPC UA requests and responses, and have built-in support for standard OPC UA Server or Client features (example for server side - managing of endpoints, namespaces, sessions, interface for plug-ins to collect data from external data sources, etc). Primary target and narrow specialization of this SDK are high performance OPC UA applications running in PC or cloud environment. It is expected that it will be resource unpretentious and run in lower end hardware such as Raspberry PI though, but narrow specialization will be to satisfy requirements for enterprise scale applications.
 
-Includes header files and pre-built binaries for Visual Studio 2019 and Ubuntu 18.04.
+This repository includes header files of the SDK. Pre-built binaries available for Visual Studio 2019, Ubuntu 18.04 and 20.04, Debian 10.10 and Red Hat Enterprise Linux 8.4.
 
 **Binaries for other targets can be created up on request - please feel free to create an issue!**
 
@@ -57,12 +57,13 @@ Source code is stored in private repository. Technical preview version is ready 
   - Call
   - Read
   - Write
-  - HistoryRead  
+  - HistoryRead 
+  - HistoryUpdate
   - Browse
   - BrowseNext
   - CreateSubscription
   - DeleteSubscriptions
-  - CreateMonitoredItems (for Data Changes only, no Alarms/Events)
+  - CreateMonitoredItems (for Data Changes only, no Alarms/Events yet)
   - DeleteMonitoredItems;
   - Publish
   - CloseSecureChannel
