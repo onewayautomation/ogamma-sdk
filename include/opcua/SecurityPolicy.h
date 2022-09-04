@@ -57,6 +57,9 @@ namespace OWA {
 
       uint16_t getCreateSessionClientNonceSize();
       SecurityPolicyId getId();
+
+      void getAsymmetricSizesAndAlgorithm(int& plainTextBlockSize, int& encryptedBlockSize, int& signatureSize, std::string& algo);
+      size_t getReceiverCertificateKeyLength();
     protected:
       static std::vector<int32_t> derivedSignatureKeyLength;
       static std::vector<int32_t> minAsymmetricKeyLength;
@@ -87,6 +90,8 @@ namespace OWA {
 
       // Certificate of the other, remote side (in case of OPC UA Client application it is certificate of UA Server to which we are connecting to).
       X509Certificate hisCerticate;
+      std::unique_ptr<Botan::Public_Key> hisPublicKey;
+
 		public: //TODO
       static std::map<std::string, SecurityPolicyId> mapUriToId;
     };

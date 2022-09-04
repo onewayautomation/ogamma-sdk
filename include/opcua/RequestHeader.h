@@ -26,9 +26,12 @@ namespace OWA {
       std::string     auditEntryId;
       uint32_t        timeoutHint; // in milliseconds
       ExtensionObject::Ptr additionalHeader;
-			StatusCode		  sendResult;
 		private:
 			uint32_t requestId; // Assigned by SDK and used by SDK. Used to map received responses to sent requests. 
+    public:
+      // Used internally by he SDK.
+      StatusCode		  sendResult;
+      uint32_t sequenceNumber; // Helper field, equal to the message sequence header. Used foir debugging / diagnostics only.
     };
   }
 }

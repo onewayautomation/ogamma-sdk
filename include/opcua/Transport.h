@@ -141,7 +141,17 @@ namespace OWA {
 
       virtual void setShutdownFlag(bool value) = 0;
       virtual bool getShutdownFlag() = 0;
-
+      std::weak_ptr<Transport> getWeakPtrFromThis()
+      {
+        try {
+          return this->shared_from_this();
+        }
+        catch(const std::bad_weak_ptr& )
+        {
+          // Can be ignored.
+          return std::weak_ptr<Transport>();
+        }
+      }
     protected:
 
         // To make sure that callbacks to the parent (Connection class) made when the Connection is alive.

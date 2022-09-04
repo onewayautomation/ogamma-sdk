@@ -5,6 +5,17 @@
 * https://onewayautomation.com/opcua-sdk
 * All rights reserved.
 */
+
+#ifndef _WIN32
+#ifndef __STDC_LIB_EXT1__
+#warning Preprocessor macros  __STDC_LIB_EXT1__ not defined.
+#endif
+#endif
+
+#ifndef __STDC_WANT_LIB_EXT1__
+#define __STDC_WANT_LIB_EXT1__ 1
+#endif
+
 #include <stdint.h>
 #include "opcua/Enums.h"
 #include <ctime>

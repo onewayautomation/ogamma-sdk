@@ -24,6 +24,13 @@ namespace OWA {
 				maxSendMessageSize = 16777216;
 				maxSendChunkCount = 0;
 				maxReceiveChunkCount = 0;
+
+				newChannelRequestId = 1;
+				newChannelStartingSequenceNumber = 1;
+				startingSequenceNumberAfterMaxUsed = 1;
+				
+				//New spec: 4294967295. For older spec is 4294966271 ( https://reference.opcfoundation.org/v105/Core/docs/Part6/6.7.2/#6.7.2.4 ) 
+				maxUseableSequenceNumber = 4294966271;
 			}
 
 			void revise()
@@ -49,6 +56,13 @@ namespace OWA {
 			uint32_t maxReceiveMessageSize; // Total size of incoming messages
 			uint32_t maxSendChunkCount; //Max count for sent chunks
 			uint32_t maxReceiveChunkCount; // Max count for received chunks
+
+			// Initial values for the RequestId and Sequnce Number used in new secure channel:
+			uint32_t  newChannelRequestId;
+
+			uint32_t  newChannelStartingSequenceNumber;
+			uint32_t  maxUseableSequenceNumber;
+			uint32_t  startingSequenceNumberAfterMaxUsed;
 		};
 	}
 }

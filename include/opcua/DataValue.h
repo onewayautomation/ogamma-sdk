@@ -21,6 +21,7 @@ namespace OWA {
 			uint16_t sourcePicoSeconds;
 			DateTime serverTimestamp;
 			uint16_t serverPicoSeconds;
+			DateTime clientTimestamp;
 		};
 	}
 }

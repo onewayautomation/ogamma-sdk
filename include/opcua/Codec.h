@@ -186,7 +186,11 @@ namespace OWA {
 			virtual void decode(DataBufferPtr& buffer, ExpandedNodeId& value) = 0;
 
 			virtual void encodeHeader(DataBufferPtr& buffer, ChannelSecurityToken& token, uint32_t& sequenceHeaderPosition) = 0;
-
+      
+      // Set sequence number used after overflow.
+      virtual void setStartingSequenceNumberAfterMaxUsed(uint32_t newValue = 0) = 0;
+      // This is max number used, after which resets to start over.
+      virtual void setMaxUseableSequenceNumber(uint32_t newValue = 4294967295) = 0;
     };
   }
 }

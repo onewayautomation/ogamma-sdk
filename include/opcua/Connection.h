@@ -262,7 +262,13 @@ namespace OWA {
 			
 			// Internal debug code, used for troubleshooting.
 			int debugCode;
-
+			
+			std::weak_ptr<LifeTimeWatch> getLifeTimeWatch();
+			
+			//this->weak_from_this() is not supported in C++11 and C++14. 
+			// At the same time, using this->shared_from_this throws expection if called from destructor.
+			// Therefore adding this method to return weak_ptr without possiblility to throw exception.
+			std::weak_ptr<Connection> getWeakPtrFromThis();
 	protected:
 
 			// this method is called by lower level transport connection when its state changed.
@@ -385,7 +391,7 @@ namespace OWA {
 
 			void setCallbacksFromTransport();
 			
-			ByteString getMyCertificate(bool fullChain = true);
+			ByteString getMyCertificate(uint8_t maxSentChainLength);
 
       // Default callback handlers, to make callback function argument optional, so callers of Connection can omit it:
       static void handleConnectDisconnect(std::weak_ptr<Connection>, const OperationResult& result);
@@ -533,6 +539,7 @@ namespace OWA {
 			std::string getEndpointsHost;
 
       uint32_t	requestId;
+			
 			uint32_t	monitoredItemClientHandle;
 			uint32_t  subscriptionClientHandle; 
 
@@ -721,6 +728,12 @@ namespace OWA {
 		template<typename RequestType>
 		bool OWA::OpcUa::Connection::addToRequestQueue(std::shared_ptr<RequestType>& request)
 		{
+			auto tId = request->getTypeId();
+			if (tId == RequestResponseTypeId::CreateSessionRequest)
+			{
+				int i = 0;
+				i++;
+			}
 			std::shared_ptr<ClientContext> ctx(
 				new ClientContext(request->header.requestId, request->getTypeId(), (void*)0, (void*)0, new std::shared_ptr<RequestType>(request)));
 			ctx->setTimeout(request->header.timeoutHint);

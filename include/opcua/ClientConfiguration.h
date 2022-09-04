@@ -107,6 +107,7 @@ namespace OWA {
 
 			// Flag telling if stale connection / disconnection transactions should be monitored. 
 			bool monitorStaleTransactions;
+			bool skipFindServers;
 	  };
 
     struct ClientConfiguration {

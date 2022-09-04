@@ -16,7 +16,12 @@ namespace OWA {
 				BinaryCodec();
         BinaryCodec(std::shared_ptr<Cryptor>& cryptor);
         
-        void setSequenceNumber(uint32_t newValue = 0);
+        void setSequenceNumber(uint32_t newValue = 0) override;
+        
+        // Set sequence number used after overflow.
+        virtual void setStartingSequenceNumberAfterMaxUsed(uint32_t newValue = 0) override;
+        // This is max number used, after which resets to start over.
+        virtual void setMaxUseableSequenceNumber(uint32_t newValue = 4294967295) override;
 
         void encode(DataBufferPtr& buffer, HelloMessage& body);
 
@@ -290,6 +295,9 @@ namespace OWA {
           encode(buffer, ExpandedNodeId::getId(RequestType::getTypeId()));
 					// 2.2. And then request header:
           encode(buffer, value.header);
+
+          // Set the last chunk's sequence number:
+          value.header.sequenceNumber = this->sequenceNumber - 1;
         }
 
         uint32_t getMaxArrayLength(const ApplicationDescription*)
@@ -339,6 +347,12 @@ namespace OWA {
 			protected:
         std::shared_ptr<Cryptor> cryptor;
         uint32_t sequenceNumber;
+
+        // Sequnce number starts from this number after overflow has been reached.
+        uint32_t startingSequenceNumber;
+
+        // The max value of the sequcne number, after which should start over:
+        uint32_t maxUseableSequenceNumber;
       };
     }
   }
